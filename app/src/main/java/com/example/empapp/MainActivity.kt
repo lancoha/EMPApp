@@ -1,47 +1,55 @@
+// MainActivity.kt
 package com.example.empapp
 
+import android.graphics.Color
 import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import com.example.empapp.ui.theme.EMPAppTheme
+import androidx.appcompat.app.AppCompatActivity
+import com.github.mikephil.charting.charts.LineChart
+import com.github.mikephil.charting.data.Entry
+import com.github.mikephil.charting.data.LineData
+import com.github.mikephil.charting.data.LineDataSet
 
-class MainActivity : ComponentActivity() {
+class MainActivity : AppCompatActivity() {
+
+    private lateinit var lineChart: LineChart
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContent {
-            EMPAppTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
-            }
-        }
+        setContentView(R.layout.activity_main)
+
+        // Find the LineChart view in the layout
+        lineChart = findViewById(R.id.lineChart)
+
+        // Set up data for the chart
+        setUpLineChartData()
     }
-}
 
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
+    private fun setUpLineChartData() {
+        // Create a list of data points (entries) for the chart
+        val entries = listOf(
+            Entry(0f, 1f),
+            Entry(1f, 2f),
+            Entry(2f, 4f),
+            Entry(3f, 3f),
+            Entry(4f, 5f),
+        )
 
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    EMPAppTheme {
-        Greeting("Android")
+        // Create a dataset and set its properties
+        val dataSet = LineDataSet(entries, "Sample Data").apply {
+            color = Color.BLUE
+            lineWidth = 2f
+            setCircleColor(Color.RED)
+            circleRadius = 5f
+            valueTextColor = Color.BLACK
+            setDrawFilled(true)
+            fillColor = Color.CYAN
+        }
+
+        // Create line data with the dataset
+        val lineData = LineData(dataSet)
+
+        // Set data to the chart and refresh it
+        lineChart.data = lineData
+        lineChart.invalidate() // Refresh chart with data
     }
 }
