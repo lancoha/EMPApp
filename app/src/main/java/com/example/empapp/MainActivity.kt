@@ -32,6 +32,22 @@ class MainActivity : AppCompatActivity() {
             Entry(2f, 4f),
             Entry(3f, 3f),
             Entry(4f, 5f),
+            Entry(5f, 7f),
+            Entry(6f, 8f),
+            Entry(7f, 6f),
+            Entry(8f, 8f),
+            Entry(9f, 5f),
+            Entry(10f, 4f),
+            Entry(11f, 3.213f),
+            Entry(12f, 12f),
+            Entry(13f, 9f),
+            Entry(15f, 20f),
+            Entry(16f, 19f),
+            Entry(17f, 17f),
+            Entry(18f, 20.5f),
+            Entry(19f, 20f),
+            Entry(20f, 25f),
+            Entry(21f, 26f),
         )
 
         // Create a dataset and set its properties
