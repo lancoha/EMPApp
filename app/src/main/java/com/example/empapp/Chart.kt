@@ -9,51 +9,17 @@ import com.github.mikephil.charting.data.LineDataSet
 
 class Chart(private val lineChart: LineChart, private val percentageChangeText: TextView) {
 
-    fun setUpLineChartData() {
-        val entries = listOf(
-            Entry(0f, 1.5f),
-            Entry(1f, 2f),
-            Entry(2f, 4f),
-            Entry(3f, 3f),
-            Entry(4f, 5f),
-            Entry(5f, 7f),
-            Entry(6f, 8f),
-            Entry(7f, 6f),
-            Entry(8f, 8f),
-            Entry(9f, 5f),
-            Entry(10f, 4f),
-            Entry(11f, 3.213f),
-            Entry(12f, 12f),
-            Entry(13f, 9f),
-            Entry(15f, 20f),
-            Entry(16f, 19f),
-            Entry(17f, 17f),
-            Entry(18f, 20.5f),
-            Entry(19f, 20f),
-            Entry(20f, 25f),
-            Entry(21f, 24f),
-            Entry(22f, 12f),
-            Entry(23f, 9f),
-            Entry(24f, 20f),
-            Entry(25f, 19f),
-            Entry(26f, 17f),
-            Entry(27f, 20.5f),
-            Entry(28f, 20f),
-            Entry(29f, 25f),
-            Entry(30f, 28f)
-
-
-        )
-
-        val firstValue = entries.first().y
-        val lastValue = entries.last().y
+    fun setUpLineChartData(entries: List<Entry>) {
+        val firstValue = entries.firstOrNull()?.y ?: 0f
+        val lastValue = entries.lastOrNull()?.y ?: 0f
         val lineColor = when {
             firstValue > lastValue -> Color.RED
             firstValue < lastValue -> Color.GREEN
             else -> Color.BLUE
         }
 
-        val dataSet = LineDataSet(entries, "Name").apply {
+
+        val dataSet = LineDataSet(entries, "AAPL").apply {
             color = lineColor
             lineWidth = 2f
             setDrawCircles(false)
@@ -62,6 +28,9 @@ class Chart(private val lineChart: LineChart, private val percentageChangeText: 
             setDrawFilled(false)
         }
 
+
+        //hide
+        /*
         //hide grid
         lineChart.xAxis.setDrawGridLines(false)
         lineChart.axisLeft.setDrawGridLines(false)
@@ -75,10 +44,10 @@ class Chart(private val lineChart: LineChart, private val percentageChangeText: 
 
         //hide borders
         lineChart.setDrawBorders(false) // ne dela? vvvvv
-        lineChart.xAxis.setDrawAxisLine(false) // Disable the X-axis line
-        lineChart.axisLeft.setDrawAxisLine(false) // Disable the left Y-axis line
-        lineChart.axisRight.setDrawAxisLine(false) // Disable the right Y-axis line
-
+        lineChart.xAxis.setDrawAxisLine(false)
+        lineChart.axisLeft.setDrawAxisLine(false)
+        lineChart.axisRight.setDrawAxisLine(false)
+        */
 
         val lineData = LineData(dataSet)
 

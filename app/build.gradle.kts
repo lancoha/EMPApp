@@ -43,6 +43,9 @@ dependencies {
     implementation(libs.androidx.appcompat.v151)
     implementation(libs.mpandroidchart)
 
+    implementation(libs.retrofit2.retrofit)
+    implementation(libs.converter.gson)
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
