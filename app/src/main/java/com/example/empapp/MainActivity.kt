@@ -32,7 +32,7 @@ class MainActivity : AppCompatActivity() {
         val api = retrofit.create(AlphaVantageApi::class.java)
         val dataFetcher = DataFetcher(api, apiKey)
 
-        dataFetcher.getStockData("AAPL") { entries ->
+        dataFetcher.getStockData("XAUUSD") { entries ->
             chart.setUpLineChartData(entries)
         }
     }
