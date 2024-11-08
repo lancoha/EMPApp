@@ -4,6 +4,9 @@ import AlphaVantageApi
 import StockResponse
 import android.util.Log
 import com.github.mikephil.charting.data.Entry
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import org.jsoup.Jsoup
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -12,13 +15,33 @@ class DataFetcher(
     private val api: AlphaVantageApi,
     private val apiKey: String
 ) {
-    fun getStockData(symbol: String, onDataFetched: (List<Entry>) -> Unit) {
+
+    suspend fun fetchCurrentPrice(): Float? {
+        return withContext(Dispatchers.IO) {
+            try {
+                val doc = Jsoup.connect("https://finance.yahoo.com/quote/AAPL").get()
+                val priceText = doc.select("fin-streamer[data-field=regularMarketPrice]").first()?.text()
+
+                Log.d("fetchCurrentPrice", "Pridobljena cena (v obliki besedila): $priceText")
+
+                priceText?.toFloatOrNull()?.also {
+                    Log.d("fetchCurrentPrice", "Pretvorjena cena (Float): $it")
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                null
+            }
+        }
+    }
+
+
+    fun getStockData(symbol: String, onDataFetched: (List<Pair<String, Entry>>) -> Unit) {
         api.getStockData(symbol = symbol, apiKey = apiKey).enqueue(object : Callback<StockResponse> {
             override fun onResponse(call: Call<StockResponse>, response: Response<StockResponse>) {
                 if (response.isSuccessful) {
                     response.body()?.let { stockResponse ->
                         val timeSeries = stockResponse.timeSeriesDaily
-                        val entries = mutableListOf<Entry>()
+                        val entries = mutableListOf<Pair<String, Entry>>()
 
                         if (timeSeries == null || timeSeries.isEmpty()) {
                             Log.e("API Response", "No time series data available or API limit reached")
@@ -28,9 +51,12 @@ class DataFetcher(
                         val reversedEntries = timeSeries.entries.reversed()
                         reversedEntries.take(365).forEachIndexed { index, entry ->
                             val dailyData = entry.value
+                            val date = entry.key
+
                             dailyData?.close?.let { closeValue ->
                                 try {
-                                    entries.add(Entry(index.toFloat(), closeValue.toFloat()))
+                                    val entry = Entry(index.toFloat(), closeValue.toFloat())
+                                    entries.add(Pair(date, entry))
                                 } catch (e: NumberFormatException) {
                                     Log.e("Parsing Error", "Error parsing close value: $closeValue", e)
                                 }

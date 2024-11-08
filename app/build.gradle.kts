@@ -40,6 +40,8 @@ android {
 }
 
 dependencies {
+    implementation(libs.jsoup)
+
     implementation(libs.androidx.appcompat.v151)
     implementation(libs.mpandroidchart)
 

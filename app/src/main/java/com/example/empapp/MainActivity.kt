@@ -5,6 +5,13 @@ import android.os.Bundle
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.github.mikephil.charting.charts.LineChart
+import com.github.mikephil.charting.data.Entry
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
@@ -13,6 +20,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var lineChart: LineChart
     private lateinit var percentageChangeText: TextView
     private lateinit var chart: Chart
+    private lateinit var dataFetcher: DataFetcher
     private val apiKey = "BEK571R5O9F75ZNI"
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -30,10 +38,21 @@ class MainActivity : AppCompatActivity() {
             .build()
 
         val api = retrofit.create(AlphaVantageApi::class.java)
-        val dataFetcher = DataFetcher(api, apiKey)
+        dataFetcher = DataFetcher(api, apiKey)
 
-        dataFetcher.getStockData("XAUUSD") { entries ->
-            chart.setUpLineChartData(entries)
+        dataFetcher.getStockData("AAPL") { data ->
+            val entries = data.toMutableList()
+
+            CoroutineScope(Dispatchers.Main).launch {
+                val currentPrice = dataFetcher.fetchCurrentPrice()
+                if (currentPrice != null) {
+                    val today = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
+                    entries.add(Pair(today, Entry(entries.size.toFloat(), currentPrice)))
+                }
+
+                chart.setUpLineChartData(entries)
+                lineChart.invalidate()  // Osveži graf
+            }
         }
     }
 }
