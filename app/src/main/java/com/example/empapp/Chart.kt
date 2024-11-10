@@ -151,24 +151,21 @@ class Chart(private val lineChart: LineChart, private val percentageChangeText: 
         val lineData = LineData(dataSet)
         lineChart.data = lineData
 
-        // Configure chart appearance for widget: no grid lines, labels, or legend
-        lineChart.axisLeft.isEnabled = false // Left Y-axis
-        lineChart.axisRight.isEnabled = false // Right Y-axis
-        lineChart.xAxis.isEnabled = false     // X-axis
-        lineChart.legend.isEnabled = false    // Legend
-        lineChart.description.isEnabled = false // Description
 
-        // Hide grid lines for both X and Y axes
+        lineChart.axisLeft.isEnabled = false
+        lineChart.axisRight.isEnabled = false
+        lineChart.xAxis.isEnabled = false
+        lineChart.legend.isEnabled = false
+        lineChart.description.isEnabled = false
+
         lineChart.xAxis.setDrawGridLines(false)
         lineChart.axisLeft.setDrawGridLines(false)
         lineChart.axisRight.setDrawGridLines(false)
 
-        // Disable touch interactions for the widget
         lineChart.setTouchEnabled(false)
         lineChart.setPinchZoom(false)
         lineChart.isDoubleTapToZoomEnabled = false
 
-        // Refresh the chart
         lineChart.invalidate()
     }
 
