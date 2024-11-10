@@ -51,7 +51,7 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 chart.setUpLineChartData(entries)
-                lineChart.invalidate()  // Osveži graf
+                lineChart.invalidate()
             }
         }
     }

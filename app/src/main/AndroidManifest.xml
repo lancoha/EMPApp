@@ -15,6 +15,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.EMPApp"
         tools:targetApi="31">
+
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -22,10 +23,21 @@
             android:theme="@style/Theme.EMPApp">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- Widget Receiver -->
+        <receiver android:name=".ChartWidgetProvider" android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/chart_widget_info" />
+        </receiver>
+
     </application>
 
 </manifest>
