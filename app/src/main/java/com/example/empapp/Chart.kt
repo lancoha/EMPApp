@@ -82,7 +82,7 @@ class Chart(private val lineChart: LineChart, private val percentageChangeText: 
         }
     }
 
-    private fun calculateChangePercentage(entries: List<Entry>, data: List<Pair<String, Entry>>, days: Int): String {
+    fun calculateChangePercentage(entries: List<Entry>, data: List<Pair<String, Entry>>, days: Int): String {
         if (entries.isEmpty()) {
             return "N/A"
         }
@@ -141,7 +141,7 @@ class Chart(private val lineChart: LineChart, private val percentageChangeText: 
 
         val dataSet = LineDataSet(entries, "AAPL").apply {
             color = lineColor
-            lineWidth = 2f
+            lineWidth = 1f
             setDrawCircles(false)
             setDrawValues(false)
             valueTextColor = Color.BLACK
@@ -161,6 +161,11 @@ class Chart(private val lineChart: LineChart, private val percentageChangeText: 
         lineChart.xAxis.setDrawGridLines(false)
         lineChart.axisLeft.setDrawGridLines(false)
         lineChart.axisRight.setDrawGridLines(false)
+
+        lineChart.setViewPortOffsets(-40f, 0f, 20f, 0f)
+        lineChart.setExtraOffsets(0f, 0f, 0f, 0f)
+        lineChart.minOffset = 0f
+        lineChart.setPadding(0, 0, 0, 0)
 
         lineChart.setTouchEnabled(false)
         lineChart.setPinchZoom(false)
