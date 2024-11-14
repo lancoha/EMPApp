@@ -139,7 +139,7 @@ class Chart(private val lineChart: LineChart, private val percentageChangeText: 
             else -> Color.BLUE
         }
 
-        val dataSet = LineDataSet(entries, "AAPL").apply {
+        val dataSet = LineDataSet(entries, "").apply {
             color = lineColor
             lineWidth = 1f
             setDrawCircles(false)

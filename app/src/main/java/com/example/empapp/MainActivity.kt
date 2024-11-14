@@ -40,11 +40,13 @@ class MainActivity : AppCompatActivity() {
         val api = retrofit.create(AlphaVantageApi::class.java)
         dataFetcher = DataFetcher(api, apiKey)
 
-        dataFetcher.getStockData("AAPL") { data ->
+        val stock = "AAPL"
+
+        dataFetcher.getStockData(stock) { data ->
             val entries = data.toMutableList()
 
             CoroutineScope(Dispatchers.Main).launch {
-                val currentPrice = dataFetcher.fetchCurrentPrice()
+                val currentPrice = dataFetcher.fetchCurrentPrice(stock)
                 if (currentPrice != null) {
                     val today = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
                     entries.add(Pair(today, Entry(entries.size.toFloat(), currentPrice)))

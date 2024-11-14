@@ -27,7 +27,15 @@
             </intent-filter>
         </activity>
 
-        <!-- Widget Receiver -->
+        <activity
+            android:name=".ChartWidgetConfigureActivity"
+            android:exported="true"
+            android:label="Widget Configuration">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
+            </intent-filter>
+        </activity>
+
         <receiver android:name=".ChartWidgetProvider" android:exported="true">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />

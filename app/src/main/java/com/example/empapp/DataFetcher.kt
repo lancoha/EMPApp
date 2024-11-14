@@ -16,17 +16,14 @@ class DataFetcher(
     private val apiKey: String
 ) {
 
-    suspend fun fetchCurrentPrice(): Float? {
+    suspend fun fetchCurrentPrice(stock: String): Float? {
         return withContext(Dispatchers.IO) {
             try {
-                val doc = Jsoup.connect("https://finance.yahoo.com/quote/AAPL").get()
+                val url = "https://finance.yahoo.com/quote/$stock"
+                val doc = Jsoup.connect(url).get()
                 val priceText = doc.select("fin-streamer[data-field=regularMarketPrice]").first()?.text()
 
-                Log.d("fetchCurrentPrice", "Pridobljena cena (v obliki besedila): $priceText")
-
-                priceText?.toFloatOrNull()?.also {
-                    Log.d("fetchCurrentPrice", "Pretvorjena cena (Float): $it")
-                }
+                priceText?.toFloatOrNull()
             } catch (e: Exception) {
                 e.printStackTrace()
                 null
@@ -49,7 +46,7 @@ class DataFetcher(
                         }
 
                         val reversedEntries = timeSeries.entries.reversed()
-                        reversedEntries.take(365).forEachIndexed { index, entry ->
+                        reversedEntries.forEachIndexed { index, entry ->
                             val dailyData = entry.value
                             val date = entry.key
 

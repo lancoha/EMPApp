@@ -7,6 +7,7 @@ interface AlphaVantageApi {
     fun getStockData(
         @Query("function") function: String = "TIME_SERIES_DAILY",
         @Query("symbol") symbol: String,
+        @Query("outputsize") outputSize: String = "full",
         @Query("apikey") apiKey: String
     ): Call<StockResponse>
 }
