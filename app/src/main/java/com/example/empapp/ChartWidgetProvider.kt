@@ -1,6 +1,6 @@
 package com.example.empapp
 
-import AlphaVantageApi
+import TwelveDataApi
 import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
@@ -28,11 +28,12 @@ class ChartWidgetProvider : AppWidgetProvider() {
         appWidgetIds: IntArray
     ) {
         val retrofit = Retrofit.Builder()
-            .baseUrl("https://www.alphavantage.co")
+            .baseUrl("https://api.twelvedata.com/")
             .addConverterFactory(GsonConverterFactory.create())
             .build()
-        val api = retrofit.create(AlphaVantageApi::class.java)
-        val apiKey = "BEK571R5O9F75ZNI"
+
+        val api = retrofit.create(TwelveDataApi::class.java)
+        val apiKey = "849555d1edc54fabb611c9c13c62c0ea"
         val dataFetcher = DataFetcher(api, apiKey)
 
         for (appWidgetId in appWidgetIds) {
@@ -90,9 +91,9 @@ class ChartWidgetProvider : AppWidgetProvider() {
 
                     val change7D = chart.calculateChangePercentage(entries, dataList, 7)
                     val change30D = chart.calculateChangePercentage(entries, dataList, 30)
-
+                    val price = entries.lastOrNull()?.y ?: 0f
                     views.setTextViewText(R.id.stock, stockSymbol)
-                    views.setTextViewText(R.id.current_price, "$currentPrice")
+                    views.setTextViewText(R.id.current_price, "$price")
                     views.setTextViewText(R.id.change_1d, "1D: $formattedChange1D%")
                     views.setTextViewText(R.id.change_7d, "7D: $change7D%")
                     views.setTextViewText(R.id.change_30d, "30D: $change30D%")

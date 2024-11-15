@@ -1,6 +1,6 @@
 package com.example.empapp
 
-import AlphaVantageApi
+import TwelveDataApi
 import android.app.Activity
 import android.appwidget.AppWidgetManager
 import android.content.Context
@@ -23,11 +23,12 @@ class ChartWidgetConfigureActivity : Activity() {
         setResult(RESULT_CANCELED)
 
         val retrofit = Retrofit.Builder()
-            .baseUrl("https://www.alphavantage.co")
+            .baseUrl("https://api.twelvedata.com/")
             .addConverterFactory(GsonConverterFactory.create())
             .build()
-        val api = retrofit.create(AlphaVantageApi::class.java)
-        val apiKey = "BEK571R5O9F75ZNI"
+
+        val api = retrofit.create(TwelveDataApi::class.java)
+        val apiKey = "849555d1edc54fabb611c9c13c62c0ea"
         dataFetcher = DataFetcher(api, apiKey)
 
         val extras = intent.extras
@@ -54,7 +55,13 @@ class ChartWidgetConfigureActivity : Activity() {
 
             val appWidgetManager = AppWidgetManager.getInstance(this@ChartWidgetConfigureActivity)
 
-            ChartWidgetProvider.updateAppWidget(this@ChartWidgetConfigureActivity, appWidgetManager, appWidgetId, symbol, dataFetcher)
+            ChartWidgetProvider.updateAppWidget(
+                this@ChartWidgetConfigureActivity,
+                appWidgetManager,
+                appWidgetId,
+                symbol,
+                dataFetcher
+            )
 
             val resultValue = Intent()
             resultValue.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)

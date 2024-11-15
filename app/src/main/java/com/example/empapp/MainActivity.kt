@@ -1,6 +1,6 @@
 package com.example.empapp
 
-import AlphaVantageApi
+import TwelveDataApi
 import android.os.Bundle
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
@@ -21,7 +21,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var percentageChangeText: TextView
     private lateinit var chart: Chart
     private lateinit var dataFetcher: DataFetcher
-    private val apiKey = "BEK571R5O9F75ZNI"
+    private val apiKey = "849555d1edc54fabb611c9c13c62c0ea"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,14 +33,14 @@ class MainActivity : AppCompatActivity() {
         chart = Chart(lineChart, percentageChangeText)
 
         val retrofit = Retrofit.Builder()
-            .baseUrl("https://www.alphavantage.co/")
+            .baseUrl("https://api.twelvedata.com/")
             .addConverterFactory(GsonConverterFactory.create())
             .build()
 
-        val api = retrofit.create(AlphaVantageApi::class.java)
+        val api = retrofit.create(TwelveDataApi::class.java)
         dataFetcher = DataFetcher(api, apiKey)
 
-        val stock = "AAPL"
+        val stock = "BTC/USD"
 
         dataFetcher.getStockData(stock) { data ->
             val entries = data.toMutableList()
