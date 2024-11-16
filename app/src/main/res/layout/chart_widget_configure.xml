@@ -15,4 +15,11 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Add Widget" />
+
+    <Spinner
+        android:id="@+id/timeframe_spinner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:entries="@array/timeframes_array" />
+
 </LinearLayout>

@@ -38,7 +38,8 @@ class ChartWidgetProvider : AppWidgetProvider() {
 
         for (appWidgetId in appWidgetIds) {
             val stockSymbol = loadSymbolPref(context, appWidgetId) ?: ""
-            updateAppWidget(context, appWidgetManager, appWidgetId, stockSymbol, dataFetcher)
+            val timeframe = ChartWidgetConfigureActivity.loadTimeframePref(context, appWidgetId) ?: "ALL"
+            updateAppWidget(context, appWidgetManager, appWidgetId, stockSymbol, timeframe, dataFetcher)
         }
     }
 
@@ -51,55 +52,64 @@ class ChartWidgetProvider : AppWidgetProvider() {
             appWidgetManager: AppWidgetManager,
             appWidgetId: Int,
             stockSymbol: String,
+            timeframe: String,
             dataFetcher: DataFetcher
         ) {
-            val intent = Intent(context, MainActivity::class.java)
-            val pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_IMMUTABLE)
+            val updateIntent = Intent(context, ChartWidgetProvider::class.java).apply {
+                action = "com.example.empapp.UPDATE_WIDGET"
+                putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
+            }
+            val updatePendingIntent = PendingIntent.getBroadcast(
+                context, appWidgetId, updateIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
 
             val views = RemoteViews(context.packageName, R.layout.widget_layout)
-            views.setOnClickPendingIntent(R.id.widget_chart_image, pendingIntent)
+            views.setOnClickPendingIntent(R.id.widget_chart_image, updatePendingIntent)
 
             val lineChart = LineChart(context)
             val textView = TextView(context)
 
             dataFetcher.getStockData(stockSymbol) { data ->
-                val dataList = data.toMutableList()
-                CoroutineScope(Dispatchers.Main).launch {
-                    val currentPrice = dataFetcher.fetchCurrentPrice(stockSymbol)
+                if (data != null) {
+                    CoroutineScope(Dispatchers.Main).launch {
+                        try {
+                            val dataList = data.toMutableList()
+                            val currentPrice = dataFetcher.fetchCurrentPrice(stockSymbol)
 
-                    if (currentPrice != null) {
-                        val today = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
-                        val lastDateInData = dataList.lastOrNull()?.first
-                        if (lastDateInData != today) {
-                            dataList.add(Pair(today, Entry(dataList.size.toFloat(), currentPrice)))
+                            if (currentPrice != null) {
+                                val today = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
+                                val lastDateInData = dataList.lastOrNull()?.first
+                                if (lastDateInData != today) {
+                                    dataList.add(Pair(today, Entry(dataList.size.toFloat(), currentPrice)))
+                                }
+                            }
+
+                            val chart = Chart(lineChart, textView)
+
+                            chart.updateChartWithTimeFrameWidget(dataList, timeframe)
+
+                            val chartBitmap: Bitmap = chart.getChartBitmap(800, 200)
+                            views.setImageViewBitmap(R.id.widget_chart_image, chartBitmap)
+
+                            val entries = dataList.map { it.second }
+                            val price = entries.lastOrNull()?.y ?: 0f
+                            views.setTextViewText(R.id.timeframe, timeframe)
+                            views.setTextViewText(R.id.stock, stockSymbol)
+                            views.setTextViewText(R.id.current_price, "$price")
+
+                            val change1D = chart.calculateChangePercentage(entries, dataList, 1)
+                            val change7D = chart.calculateChangePercentage(entries, dataList, 7)
+                            val change1M = chart.calculateChangePercentage(entries, dataList, 31)
+
+                            views.setTextViewText(R.id.change_1d, "1D: $change1D%")
+                            views.setTextViewText(R.id.change_7d, "7D: $change7D%")
+                            views.setTextViewText(R.id.change_30d, "1M: $change1M%")
+
+                            appWidgetManager.updateAppWidget(appWidgetId, views)
+                        } catch (e: Exception) {
+                            e.printStackTrace()
                         }
                     }
-
-                    val chart = Chart(lineChart, textView)
-                    chart.setUpLineChartForWidget(dataList)
-                    val chartBitmap: Bitmap = chart.getChartBitmap(800, 200)
-
-                    val entries = dataList.map { it.second }
-                    val change1D = if (entries.size > 1) {
-                        val lastValue = entries[entries.size - 1].y
-                        val previousValue = entries[entries.size - 2].y
-                        if (previousValue != 0f) ((lastValue - previousValue) / previousValue) * 100 else 0f
-                    } else {
-                        0f
-                    }
-                    val formattedChange1D = String.format("%.2f", change1D)
-
-                    val change7D = chart.calculateChangePercentage(entries, dataList, 7)
-                    val change31MD = chart.calculateChangePercentage(entries, dataList, 31)
-                    val price = entries.lastOrNull()?.y ?: 0f
-                    views.setTextViewText(R.id.stock, stockSymbol)
-                    views.setTextViewText(R.id.current_price, "$price")
-                    views.setTextViewText(R.id.change_1d, "1D: $formattedChange1D%")
-                    views.setTextViewText(R.id.change_7d, "7D: $change7D%")
-                    views.setTextViewText(R.id.change_30d, "1M: $change31MD%")
-                    views.setImageViewBitmap(R.id.widget_chart_image, chartBitmap)
-
-                    appWidgetManager.updateAppWidget(appWidgetId, views)
                 }
             }
         }
@@ -107,6 +117,29 @@ class ChartWidgetProvider : AppWidgetProvider() {
         fun loadSymbolPref(context: Context, appWidgetId: Int): String? {
             val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
             return prefs.getString(PREF_PREFIX_KEY + appWidgetId, null)
+        }
+    }
+    override fun onReceive(context: Context, intent: Intent) {
+        super.onReceive(context, intent)
+
+        if (intent.action == "com.example.empapp.UPDATE_WIDGET") {
+            val appWidgetId = intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID)
+            if (appWidgetId != AppWidgetManager.INVALID_APPWIDGET_ID) {
+                val appWidgetManager = AppWidgetManager.getInstance(context)
+                val stockSymbol = loadSymbolPref(context, appWidgetId) ?: ""
+                val timeframe = ChartWidgetConfigureActivity.loadTimeframePref(context, appWidgetId) ?: "ALL"
+
+                val retrofit = Retrofit.Builder()
+                    .baseUrl("https://api.twelvedata.com/")
+                    .addConverterFactory(GsonConverterFactory.create())
+                    .build()
+
+                val api = retrofit.create(TwelveDataApi::class.java)
+                val apiKey = "849555d1edc54fabb611c9c13c62c0ea"
+                val dataFetcher = DataFetcher(api, apiKey)
+
+                updateAppWidget(context, appWidgetManager, appWidgetId, stockSymbol, timeframe, dataFetcher)
+            }
         }
     }
 }

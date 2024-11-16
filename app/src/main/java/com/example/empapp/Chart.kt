@@ -47,6 +47,15 @@ class Chart(private val lineChart: LineChart, private val percentageChangeText: 
         lineChart.highlightValues(null)
     }
 
+    fun updateChartWithTimeFrameWidget(data: List<Pair<String, Entry>>, timeFrame: String) {
+        val filteredData = filterDataForTimeFrame(data, timeFrame)
+        setUpLineChartForWidget(filteredData)
+
+        lineChart.fitScreen()
+        lineChart.moveViewToX(0f)
+        lineChart.highlightValues(null)
+    }
+
     fun setUpLineChartData(data: List<Pair<String, Entry>>) {
         val entries = data.map { it.second }
 
@@ -183,7 +192,6 @@ class Chart(private val lineChart: LineChart, private val percentageChangeText: 
 
         val lineData = LineData(dataSet)
         lineChart.data = lineData
-
 
         lineChart.axisLeft.isEnabled = false
         lineChart.axisRight.isEnabled = false

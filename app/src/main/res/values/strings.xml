@@ -1,3 +1,11 @@
 <resources>
     <string name="app_name">EMPApp</string>
+
+    <string-array name="timeframes_array">
+        <item>1M</item>
+        <item>1Y</item>
+        <item>5Y</item>
+        <item>ALL</item>
+    </string-array>
+
 </resources>
