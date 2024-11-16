@@ -2,6 +2,7 @@ package com.example.empapp
 
 import TwelveDataApi
 import android.os.Bundle
+import android.widget.Button
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.github.mikephil.charting.charts.LineChart
@@ -40,20 +41,35 @@ class MainActivity : AppCompatActivity() {
         val api = retrofit.create(TwelveDataApi::class.java)
         dataFetcher = DataFetcher(api, apiKey)
 
-        val stock = "BTC/USD"
+        val stock = "AAPL"
 
         dataFetcher.getStockData(stock) { data ->
-            val entries = data.toMutableList()
+            val fullData = data.toMutableList()
 
             CoroutineScope(Dispatchers.Main).launch {
                 val currentPrice = dataFetcher.fetchCurrentPrice(stock)
                 if (currentPrice != null) {
                     val today = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
-                    entries.add(Pair(today, Entry(entries.size.toFloat(), currentPrice)))
+                    fullData.add(Pair(today, Entry(fullData.size.toFloat(), currentPrice)))
                 }
 
-                chart.setUpLineChartData(entries)
-                lineChart.invalidate()
+                chart.setUpLineChartData(fullData)
+
+                findViewById<Button>(R.id.btn_1M).setOnClickListener {
+                    chart.updateChartWithTimeFrame(fullData, "1M")
+                }
+
+                findViewById<Button>(R.id.btn_1Y).setOnClickListener {
+                    chart.updateChartWithTimeFrame(fullData, "1Y")
+                }
+
+                findViewById<Button>(R.id.btn_5Y).setOnClickListener {
+                    chart.updateChartWithTimeFrame(fullData, "5Y")
+                }
+
+                findViewById<Button>(R.id.btn_all).setOnClickListener {
+                    chart.updateChartWithTimeFrame(fullData, "ALL")
+                }
             }
         }
     }

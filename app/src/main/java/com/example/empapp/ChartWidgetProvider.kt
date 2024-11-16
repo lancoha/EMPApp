@@ -37,7 +37,7 @@ class ChartWidgetProvider : AppWidgetProvider() {
         val dataFetcher = DataFetcher(api, apiKey)
 
         for (appWidgetId in appWidgetIds) {
-            val stockSymbol = loadSymbolPref(context, appWidgetId) ?: "GOOG"
+            val stockSymbol = loadSymbolPref(context, appWidgetId) ?: ""
             updateAppWidget(context, appWidgetManager, appWidgetId, stockSymbol, dataFetcher)
         }
     }
@@ -90,13 +90,13 @@ class ChartWidgetProvider : AppWidgetProvider() {
                     val formattedChange1D = String.format("%.2f", change1D)
 
                     val change7D = chart.calculateChangePercentage(entries, dataList, 7)
-                    val change30D = chart.calculateChangePercentage(entries, dataList, 30)
+                    val change31MD = chart.calculateChangePercentage(entries, dataList, 31)
                     val price = entries.lastOrNull()?.y ?: 0f
                     views.setTextViewText(R.id.stock, stockSymbol)
                     views.setTextViewText(R.id.current_price, "$price")
                     views.setTextViewText(R.id.change_1d, "1D: $formattedChange1D%")
                     views.setTextViewText(R.id.change_7d, "7D: $change7D%")
-                    views.setTextViewText(R.id.change_30d, "30D: $change30D%")
+                    views.setTextViewText(R.id.change_30d, "1M: $change31MD%")
                     views.setImageViewBitmap(R.id.widget_chart_image, chartBitmap)
 
                     appWidgetManager.updateAppWidget(appWidgetId, views)

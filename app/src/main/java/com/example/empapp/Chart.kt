@@ -18,6 +18,35 @@ import android.view.View
 
 class Chart(private val lineChart: LineChart, private val percentageChangeText: TextView) {
 
+    fun filterDataForTimeFrame(data: List<Pair<String, Entry>>, timeFrame: String): List<Pair<String, Entry>> {
+        if (timeFrame == "ALL") return data
+
+        val calendar = Calendar.getInstance()
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+
+        when (timeFrame) {
+            "1M" -> calendar.add(Calendar.MONTH, -1)
+            "1Y" -> calendar.add(Calendar.YEAR, -1)
+            "5Y" -> calendar.add(Calendar.YEAR, -5)
+        }
+
+        val cutoffDate = dateFormat.format(calendar.time)
+        val filteredData = data.filter { it.first >= cutoffDate }
+
+        return filteredData.mapIndexed { index, pair ->
+            Pair(pair.first, Entry(index.toFloat(), pair.second.y))
+        }
+    }
+
+    fun updateChartWithTimeFrame(data: List<Pair<String, Entry>>, timeFrame: String) {
+        val filteredData = filterDataForTimeFrame(data, timeFrame)
+        setUpLineChartData(filteredData)
+
+        lineChart.fitScreen()
+        lineChart.moveViewToX(0f)
+        lineChart.highlightValues(null)
+    }
+
     fun setUpLineChartData(data: List<Pair<String, Entry>>) {
         val entries = data.map { it.second }
 
@@ -61,14 +90,14 @@ class Chart(private val lineChart: LineChart, private val percentageChangeText: 
 
         lineChart.invalidate()
 
-        val change30Days = calculateChangePercentage(entries, data, 30)
+        val change1MDays = calculateChangePercentage(entries, data, 31)
         val change7Days = calculateChangePercentage(entries, data, 7)
         val change1Day = calculateChangePercentage(entries, data, 1)
 
         val percentageChange = calculatePercentageChange(firstValue, lastValue)
 
         percentageChangeText.text = "Price: $currentPrice\nChange: $percentageChange%\n\n" +
-                "30 dni: $change30Days%\n" +
+                "1 mesec: $change1MDays%\n" +
                 "7 dni: $change7Days%\n" +
                 "1 dan: $change1Day%"
     }
@@ -94,7 +123,12 @@ class Chart(private val lineChart: LineChart, private val percentageChangeText: 
         val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
         val currDate = dateFormat.parse(currentDate) ?: return "N/A"
         calendar.time = currDate
-        calendar.add(Calendar.DAY_OF_MONTH, -days)
+
+        if (days == 31) {
+            calendar.add(Calendar.MONTH, -1)
+        } else {
+            calendar.add(Calendar.DAY_OF_MONTH, -days)
+        }
 
         val pastDate = dateFormat.format(calendar.time)
 
@@ -115,7 +149,6 @@ class Chart(private val lineChart: LineChart, private val percentageChangeText: 
 
         return formattedChange
     }
-
     fun getChartBitmap(width: Int = 400, height: Int = 400): Bitmap {
         lineChart.measure(
             View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY),
@@ -173,6 +206,4 @@ class Chart(private val lineChart: LineChart, private val percentageChangeText: 
 
         lineChart.invalidate()
     }
-
-
 }
