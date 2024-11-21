@@ -40,6 +40,9 @@ android {
 }
 
 dependencies {
+
+    implementation("androidx.work:work-runtime-ktx:2.8.1")
+
     implementation(libs.jsoup)
 
     implementation(libs.androidx.appcompat.v151)

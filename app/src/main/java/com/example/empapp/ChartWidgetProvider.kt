@@ -4,11 +4,13 @@ import TwelveDataApi
 import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.widget.RemoteViews
 import android.graphics.Bitmap
 import android.widget.TextView
+import androidx.work.*
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.data.Entry
 import kotlinx.coroutines.CoroutineScope
@@ -19,6 +21,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import java.util.concurrent.TimeUnit
 
 class ChartWidgetProvider : AppWidgetProvider() {
 
@@ -41,6 +44,14 @@ class ChartWidgetProvider : AppWidgetProvider() {
             val timeframe = ChartWidgetConfigureActivity.loadTimeframePref(context, appWidgetId) ?: "ALL"
             updateAppWidget(context, appWidgetManager, appWidgetId, stockSymbol, timeframe, dataFetcher)
         }
+    }
+
+    override fun onEnabled(context: Context) {
+        scheduleWidgetUpdate(context)
+    }
+
+    override fun onDisabled(context: Context) {
+        WorkManager.getInstance(context).cancelUniqueWork("WidgetUpdateWork")
     }
 
     companion object {
@@ -118,7 +129,19 @@ class ChartWidgetProvider : AppWidgetProvider() {
             val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
             return prefs.getString(PREF_PREFIX_KEY + appWidgetId, null)
         }
+
+        private fun scheduleWidgetUpdate(context: Context) {
+            val workRequest = PeriodicWorkRequestBuilder<WidgetUpdateWorker>(1, TimeUnit.HOURS)
+                .build()
+
+            WorkManager.getInstance(context).enqueueUniquePeriodicWork(
+                "WidgetUpdateWork",
+                ExistingPeriodicWorkPolicy.REPLACE,
+                workRequest
+            )
+        }
     }
+
     override fun onReceive(context: Context, intent: Intent) {
         super.onReceive(context, intent)
 
@@ -141,5 +164,31 @@ class ChartWidgetProvider : AppWidgetProvider() {
                 updateAppWidget(context, appWidgetManager, appWidgetId, stockSymbol, timeframe, dataFetcher)
             }
         }
+    }
+}
+
+class WidgetUpdateWorker(context: Context, workerParams: WorkerParameters) : Worker(context, workerParams) {
+
+    override fun doWork(): Result {
+        val appWidgetManager = AppWidgetManager.getInstance(applicationContext)
+        val componentName = ComponentName(applicationContext, ChartWidgetProvider::class.java)
+        val appWidgetIds = appWidgetManager.getAppWidgetIds(componentName)
+
+        val retrofit = Retrofit.Builder()
+            .baseUrl("https://api.twelvedata.com/")
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+
+        val api = retrofit.create(TwelveDataApi::class.java)
+        val apiKey = "849555d1edc54fabb611c9c13c62c0ea"
+        val dataFetcher = DataFetcher(api, apiKey)
+
+        for (appWidgetId in appWidgetIds) {
+            val stockSymbol = ChartWidgetProvider.loadSymbolPref(applicationContext, appWidgetId) ?: ""
+            val timeframe = ChartWidgetConfigureActivity.loadTimeframePref(applicationContext, appWidgetId) ?: "ALL"
+            ChartWidgetProvider.updateAppWidget(applicationContext, appWidgetManager, appWidgetId, stockSymbol, timeframe, dataFetcher)
+        }
+
+        return Result.success()
     }
 }
