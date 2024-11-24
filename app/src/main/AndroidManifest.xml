@@ -27,6 +27,8 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".ChartsScreen" />
+
         <activity
             android:name=".ChartWidgetConfigureActivity"
             android:exported="true"

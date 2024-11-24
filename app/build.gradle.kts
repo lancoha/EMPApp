@@ -6,7 +6,7 @@ plugins {
 
 android {
     namespace = "com.example.empapp"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.example.empapp"
@@ -67,4 +67,24 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+
+    implementation("com.google.accompanist:accompanist-systemuicontroller:0.30.1")
+
+    implementation("androidx.compose.material:material-icons-extended:1.7.5")
+
+    implementation("androidx.compose.material3:material3:1.3.1")
+
+    implementation("androidx.navigation:navigation-compose:2.8.3")
+
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.2")
+
+    implementation("org.jsoup:jsoup:1.15.3")
+
+    implementation("androidx.browser:browser:1.8.0")
+
+    implementation("androidx.core:core-ktx:1.15.0")
 }
