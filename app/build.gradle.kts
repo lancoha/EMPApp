@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    id("kotlin-kapt")
 }
 
 android {
@@ -37,11 +38,21 @@ android {
     buildFeatures {
         compose = true
     }
+    kapt {
+        arguments {
+            arg("room.schemaLocation", "$projectDir/schemas")
+        }
+    }
 }
 
 dependencies {
+    implementation(libs.androidx.room.runtime)
+    kapt(libs.androidx.room.compiler)
+    implementation(libs.androidx.room.ktx)
 
-    implementation("androidx.work:work-runtime-ktx:2.8.1")
+    implementation(libs.kotlinx.coroutines.android)
+
+    implementation(libs.androidx.work.runtime.ktx)
 
     implementation(libs.jsoup)
 
