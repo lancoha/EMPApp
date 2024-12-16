@@ -3,7 +3,7 @@ import androidx.room.*
 @Dao
 interface AssetDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertAsset(asset: Asset): Long // Vračanje ID vstavljene vrstice
+    suspend fun insertAsset(asset: Asset): Long
 
     @Query("SELECT * FROM assets WHERE isFavorite = 1")
     suspend fun getFavoriteAssets(): List<Asset>
@@ -12,8 +12,8 @@ interface AssetDao {
     suspend fun getAssetById(id: Int): Asset?
 
     @Update
-    suspend fun updateAsset(asset: Asset): Int // Vračanje števila posodobljenih vrstic
+    suspend fun updateAsset(asset: Asset): Int
 
     @Delete
-    suspend fun deleteAsset(asset: Asset): Int // Vračanje števila izbrisanih vrstic
+    suspend fun deleteAsset(asset: Asset): Int
 }

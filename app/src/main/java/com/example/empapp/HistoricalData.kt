@@ -13,7 +13,7 @@ import androidx.room.PrimaryKey
             onDelete = ForeignKey.CASCADE
         )
     ],
-    indices = [Index(value = ["assetId"])] // Dodan indeks za tuji ključ
+    indices = [Index(value = ["assetId"])]
 )
 data class HistoricalData(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
