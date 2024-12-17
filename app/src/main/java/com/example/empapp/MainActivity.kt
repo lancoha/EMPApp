@@ -96,11 +96,11 @@ class MainActivity : ComponentActivity() {
         }
         //test PB
         dataFetcher.getStockData("AAPL") { entries ->
-            saveDataToDatabase("AAPL", true, entries)
+            saveDataToDatabase("AAPL", false, entries)
         }
 
         dataFetcher.getStockData("BTC/USD") { entries ->
-            saveDataToDatabase("BTC/USD", true, entries)
+            saveDataToDatabase("BTC/USD", false, entries)
         }
 
         dataFetcher.getStockData("TSLA") { entries ->
@@ -108,7 +108,7 @@ class MainActivity : ComponentActivity() {
         }
 
         dataFetcher.getStockData("ETH/USD") { entries ->
-            saveDataToDatabase("ETH/USD", false, entries)
+            saveDataToDatabase("ETH/USD", true, entries)
         }
 
         lifecycleScope.launch {
