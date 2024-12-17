@@ -1,9 +1,10 @@
+package com.example.empapp
+
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
-@Entity(tableName = "assets")
+@Entity(tableName = "asset")
 data class Asset(
-    @PrimaryKey(autoGenerate = true) val id: Int = 0,
-    val symbol: String,
-    val isFavorite: Boolean
+    @PrimaryKey val id: String,
+    val isFavourite: Boolean
 )

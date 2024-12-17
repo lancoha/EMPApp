@@ -1,19 +1,26 @@
-import androidx.room.*
+package com.example.empapp
+
+import androidx.room.Dao
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
+import androidx.room.Query
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface AssetDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertAsset(asset: Asset): Long
+    suspend fun insertAsset(asset: Asset)
 
-    @Query("SELECT * FROM assets WHERE isFavorite = 1")
-    suspend fun getFavoriteAssets(): List<Asset>
+    @Query("SELECT * FROM asset WHERE id = :assetId LIMIT 1")
+    fun getAssetById(assetId: String): Flow<Asset?>
 
-    @Query("SELECT * FROM assets WHERE id = :id")
-    suspend fun getAssetById(id: Int): Asset?
+    @Query("UPDATE asset SET isFavourite = :isFavourite WHERE id = :assetId")
+    suspend fun updateFavouriteStatus(assetId: String, isFavourite: Boolean)
 
-    @Update
-    suspend fun updateAsset(asset: Asset): Int
+    @Query("SELECT * FROM asset")
+    fun getAllAssets(): Flow<List<Asset>>
 
-    @Delete
-    suspend fun deleteAsset(asset: Asset): Int
+    @Query("DELETE FROM asset WHERE id = :assetId")
+    suspend fun deleteAsset(assetId: String)
 }
+
