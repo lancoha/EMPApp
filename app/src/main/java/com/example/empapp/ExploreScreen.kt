@@ -136,36 +136,6 @@ fun CoinOrStockItem(name: String, symbol: String, backgroundColor: Color, onClic
     }
 }
 
-@Composable
-fun AllCoinsScreen() {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(
-            text = "All Coins Screen - Coming Soon!",
-            style = MaterialTheme.typography.titleLarge
-        )
-    }
-}
-
-@Composable
-fun AllStocksScreen() {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(
-            text = "All Stocks Screen - Coming Soon!",
-            style = MaterialTheme.typography.titleLarge
-        )
-    }
-}
-
 @Preview(showBackground = true)
 @Composable
 fun ExploreScreenPreview() {
