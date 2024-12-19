@@ -52,4 +52,8 @@ class AssetRepository(private val db: AppDatabase) {
     suspend fun deleteAsset(assetId: String) {
         db.assetDao().deleteAsset(assetId)
     }
+
+    suspend fun deleteAllDailyDataForAsset(assetId: String) {
+        db.assetDailyDataDao().deleteAllDailyDataForAsset(assetId)
+    }
 }

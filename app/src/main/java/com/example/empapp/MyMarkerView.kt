@@ -21,7 +21,7 @@ class MyMarkerView(context: Context, layoutResource: Int, private val data: List
             if (index in data.indices) {
                 val date = data[index].first
                 val price = e.y
-                textView.text = "Datum: ${dateFormat.format(SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).parse(date)!!)}\nCena: $price"
+                textView.text = "Datum: ${dateFormat.format(SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).parse(date)!!)}\nCena: $price $"
             }
         }
         super.refreshContent(e, highlight)

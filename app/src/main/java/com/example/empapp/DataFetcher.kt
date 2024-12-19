@@ -20,6 +20,9 @@ class DataFetcher(
 ) {
 
     suspend fun fetchCurrentPrice(stock: String): Float? {
+        if (stock.contains("/")) {
+            return null
+        }
         return withContext(Dispatchers.IO) {
             try {
                 val url = "https://finance.yahoo.com/quote/$stock"
