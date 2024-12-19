@@ -70,18 +70,9 @@ class MainActivity : ComponentActivity() {
         CoroutineScope(Dispatchers.IO).launch {
             repo.updateFavouriteStatus(assetId, false)
 
-
-
-
-
-
-
             repo.deleteAllDailyDataForAsset(assetId)
         }
     }
-
-
-
 
     @Composable
     private fun SetBarColor(color : Color){
