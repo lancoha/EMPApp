@@ -43,11 +43,12 @@ class MainActivity : ComponentActivity() {
 
                 SetBarColor(color = MaterialTheme.colorScheme.background)
 
+                val navigateTo = intent.getStringExtra("navigate_to")
+
                 Scaffold(modifier = Modifier.fillMaxSize(), containerColor = MaterialTheme.colorScheme.background) { innerPadding ->
                     HomeScreen(
                         name = "Android",
                         modifier = Modifier.padding(innerPadding)
-
                     )
                 }
             }

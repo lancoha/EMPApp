@@ -1,6 +1,8 @@
 package com.example.empapp
 
+import com.example.empapp.MainActivity
 import TwelveDataApi
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
 import android.widget.TextView
@@ -63,6 +65,11 @@ class ChartsScreen : AppCompatActivity() {
                     fetchDataFromDatabase(MainActivity.GlobalVariables.ChartSymbol)
                 }
             }
+        }
+
+        findViewById<Button>(R.id.btn_main_screen).setOnClickListener {
+            val intent = Intent(this, MainActivity::class.java)
+            startActivity(intent)
         }
     }
 
@@ -136,10 +143,6 @@ class ChartsScreen : AppCompatActivity() {
 
         findViewById<Button>(R.id.btn_all).setOnClickListener {
             chart.updateChartWithTimeFrame(data, "ALL")
-        }
-
-        findViewById<Button>(R.id.btn_back).setOnClickListener {
-            finish()
         }
     }
 
