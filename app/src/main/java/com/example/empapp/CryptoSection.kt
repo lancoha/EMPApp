@@ -1,23 +1,27 @@
 package com.example.empapp
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.StackedLineChart
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -27,37 +31,57 @@ import com.example.empapp.ui.theme.BlueStart
 import com.example.empapp.ui.theme.GreenStart
 import com.example.empapp.ui.theme.OrangeStart
 import com.example.empapp.ui.theme.PurpleStart
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.withContext
+import org.jsoup.Jsoup
 
 val cryptoList = listOf(
     Crypto(
-        icon = Icons.Rounded.StackedLineChart,
         name = "Bitcoin\nBTC",
-        background = OrangeStart
+        background = OrangeStart,
+        symbol = "BTC"
     ),
-
     Crypto(
-        icon = Icons.Rounded.StackedLineChart,
         name = "Ethereum\nETH",
-        background = BlueStart
+        background = BlueStart,
+        symbol = "ETH"
     ),
-
     Crypto(
-        icon = Icons.Rounded.StackedLineChart,
         name = "Solana\nSOL",
-        background = PurpleStart
+        background = PurpleStart,
+        symbol = "SOL"
     ),
-
     Crypto(
-        icon = Icons.Rounded.StackedLineChart,
         name = "Dogecoin\nDOGE",
-        background = GreenStart
+        background = GreenStart,
+        symbol = "DOGE"
     )
 )
 
-@Preview
+@Preview(showBackground = true)
+@Composable
+fun CryptoSectionPreview() {
+    CryptoSection()
+}
+
 @Composable
 fun CryptoSection() {
-    Column{
+    var prices by remember { mutableStateOf<Map<String, Float?>>(emptyMap()) }
+
+    val coroutineScope = rememberCoroutineScope()
+
+    LaunchedEffect(Unit) {
+        val fetchedPrices = cryptoList.map { crypto ->
+            coroutineScope.async {
+                crypto.symbol to fetchCurrentPrice(crypto.symbol)
+            }
+        }.awaitAll().toMap()
+        prices = fetchedPrices
+    }
+
+    Column {
         Text(
             text = "Crypto",
             fontSize = 24.sp,
@@ -65,50 +89,80 @@ fun CryptoSection() {
             fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(16.dp)
         )
-        LazyRow {
-            items(cryptoList.size) {
-                CryptoItem(it)
+        LazyRow(
+            contentPadding = PaddingValues(horizontal = 16.dp),
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            items(cryptoList.size) { index ->
+                val crypto = cryptoList[index]
+                CryptoItem(
+                    crypto = crypto,
+                    price = prices[crypto.symbol]
+                )
             }
+        }
+    }
+}
+
+suspend fun fetchCurrentPrice(stock: String): Float? {
+    return withContext(Dispatchers.IO) {
+        try {
+            val url = "https://finance.yahoo.com/quote/${stock}-USD"
+            val doc = Jsoup.connect(url).get()
+            val priceText = doc.select("fin-streamer[data-field=regularMarketPrice]").first()?.text()
+            priceText?.replace(",", "")?.toFloatOrNull() // Remove commas for numbers like "34,000"
+        } catch (e: Exception) {
+            Log.e("CryptoSection", "Error fetching current price for $stock", e)
+            null
         }
     }
 }
 
 @Composable
 fun CryptoItem(
-    index: Int
+    crypto: Crypto,
+    price: Float?
 ) {
-    val crypto = cryptoList[index]
-    var lastPaddingEnd = 0.dp
-    if (index == cryptoList.size - 1) {
-        lastPaddingEnd = 16.dp
-    }
-
-    Box(modifier = Modifier.padding(start = 16.dp, end = lastPaddingEnd)) {
-        Column(
-            modifier = Modifier.clip(RoundedCornerShape(25.dp))
-                .background(MaterialTheme.colorScheme.secondaryContainer)
-                .size(120.dp)
-                .clickable {}
-                .padding(13.dp),
-            verticalArrangement = Arrangement.SpaceBetween
-        ) {
+    Column(
+        modifier = Modifier
+            .clip(RoundedCornerShape(25.dp))
+            .background(MaterialTheme.colorScheme.secondaryContainer)
+            .size(120.dp)
+            .clickable { }
+            .padding(13.dp),
+        verticalArrangement = Arrangement.SpaceBetween
+    ) {
+        Column {
             Text(
-            text = crypto.name,
-            color = MaterialTheme.colorScheme.onSecondaryContainer,
-            fontWeight = FontWeight.SemiBold,
-            fontSize = 15.sp
-        )
-            Box(
-                modifier = Modifier.clip(RoundedCornerShape(16.dp))
-                    .background(crypto.background)
-                    .padding(6.dp)
-            ) {
-                Icon(
-                    imageVector = crypto.icon,
-                    contentDescription = crypto.name,
-                    tint = Color.White
+                text = crypto.name,
+                color = MaterialTheme.colorScheme.onSecondaryContainer,
+                fontWeight = FontWeight.SemiBold,
+                fontSize = 15.sp
+            )
+            if (price != null) {
+                Text(
+                    text = "$${"%.2f".format(price)}",
+                    color = MaterialTheme.colorScheme.onSecondaryContainer,
+                    fontWeight = FontWeight.Normal,
+                    fontSize = 14.sp,
+                    modifier = Modifier.padding(top = 4.dp)
+                )
+            } else {
+                Text(
+                    text = "Loading...",
+                    color = MaterialTheme.colorScheme.onSecondaryContainer,
+                    fontWeight = FontWeight.Normal,
+                    fontSize = 14.sp,
+                    modifier = Modifier.padding(top = 4.dp)
                 )
             }
+        }
+        Box(
+            modifier = Modifier
+                .clip(RoundedCornerShape(16.dp))
+                .background(crypto.background)
+                .padding(6.dp)
+        ) {
         }
     }
 }

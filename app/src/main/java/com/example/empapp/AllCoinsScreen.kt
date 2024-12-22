@@ -46,7 +46,7 @@ fun AllCoinsScreen() {
         topBar = {
             TopAppBar(
                 title = { Text("All Coins") },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.primary)
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color(0xFF6AA9FC))
             )
         }
     ) { paddingValues ->
@@ -54,7 +54,7 @@ fun AllCoinsScreen() {
             contentPadding = paddingValues,
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp)
+                .padding(horizontal = 0.dp, vertical = 16.dp)
         ) {
             items(coins) { coin ->
                 CoinItem(
@@ -88,14 +88,12 @@ fun CoinItem(name: String, symbol: String, backgroundColor: Color, onClick: () -
         ) {
             Text(
                 text = name,
-                style = MaterialTheme.typography.bodyMedium,
-                fontWeight = FontWeight.SemiBold,
+                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
                 color = MaterialTheme.colorScheme.onPrimaryContainer
             )
             Text(
                 text = symbol,
-                style = MaterialTheme.typography.bodyLarge,
-                fontWeight = FontWeight.Bold,
+                style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
                 color = MaterialTheme.colorScheme.onPrimaryContainer
             )
         }

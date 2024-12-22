@@ -1,20 +1,18 @@
+// StocksSection.kt
 package com.example.empapp
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.CandlestickChart
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -27,37 +25,77 @@ import com.example.empapp.ui.theme.BlueStart
 import com.example.empapp.ui.theme.GreenStart
 import com.example.empapp.ui.theme.OrangeStart
 import com.example.empapp.ui.theme.PurpleStart
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.withContext
+import org.jsoup.Jsoup
+import android.util.Log
 
 val stockList = listOf(
     Stock(
-        icon = Icons.Rounded.CandlestickChart,
         name = "Tesla\nTSLA",
-        background = GreenStart
+        background = GreenStart,
+        symbol = "TSLA"
     ),
-
     Stock(
-        icon = Icons.Rounded.CandlestickChart,
         name = "Nvidia\nNVDA",
-        background = PurpleStart
+        background = PurpleStart,
+        symbol = "NVDA"
     ),
-
     Stock(
-        icon = Icons.Rounded.CandlestickChart,
         name = "Apple\nAAPL",
-        background = OrangeStart
+        background = OrangeStart,
+        symbol = "AAPL"
     ),
-
     Stock(
-        icon = Icons.Rounded.CandlestickChart,
         name = "Netflix\nNFLX",
-        background = BlueStart
+        background = BlueStart,
+        symbol = "NFLX"
     )
 )
 
-@Preview
+@Preview(showBackground = true)
+@Composable
+fun StocksSectionPreview() {
+    StocksSection()
+}
+
 @Composable
 fun StocksSection() {
-    Column{
+    var prices by remember { mutableStateOf<Map<String, Float?>>(emptyMap()) }
+
+    val coroutineScope = rememberCoroutineScope()
+
+    suspend fun fetchCurrentPrice(stockSymbol: String): Float? {
+        return withContext(Dispatchers.IO) {
+            try {
+                val url = "https://finance.yahoo.com/quote/${stockSymbol}"
+                val doc = Jsoup.connect(url).get()
+                val priceText = doc.select("fin-streamer[data-field=regularMarketPrice]").first()?.text()
+                priceText?.replace(",", "")?.toFloatOrNull() // Remove commas for numbers like "34,000"
+            } catch (e: Exception) {
+                Log.e("StocksSection", "Error fetching current price for $stockSymbol", e)
+                null
+            }
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        val fetchedPrices = stockList.map { stock ->
+            coroutineScope.async {
+                val symbol = stock.name.split("\n").getOrNull(1) ?: ""
+                if (symbol.isNotEmpty()) {
+                    symbol to fetchCurrentPrice(symbol)
+                } else {
+                    symbol to null
+                }
+            }
+        }.awaitAll().toMap()
+        prices = fetchedPrices
+    }
+
+    Column {
         Text(
             text = "Stocks",
             fontSize = 24.sp,
@@ -65,9 +103,14 @@ fun StocksSection() {
             fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(16.dp)
         )
-        LazyRow {
-            items(stockList.size) {
-                StockItem(it)
+        LazyRow(
+        ) {
+            items(stockList) { stock ->
+                val symbol = stock.name.split("\n").getOrNull(1) ?: ""
+                StockItem(
+                    stock = stock,
+                    price = prices[symbol]
+                )
             }
         }
     }
@@ -75,39 +118,53 @@ fun StocksSection() {
 
 @Composable
 fun StockItem(
-    index: Int
+    stock: Stock,
+    price: Float?
 ) {
-    val finance = stockList[index]
-    var lastPaddingEnd = 0.dp
-    if (index == stockList.size - 1) {
-        lastPaddingEnd = 16.dp
-    }
+    val isLastItem = stockList.last() == stock
+    val endPadding = if (isLastItem) 16.dp else 0.dp
 
-    Box(modifier = Modifier.padding(start = 16.dp, end = lastPaddingEnd)) {
+    Box(modifier = Modifier.padding(start = 16.dp, end = endPadding)) {
         Column(
-            modifier = Modifier.clip(RoundedCornerShape(25.dp))
+            modifier = Modifier
+                .clip(RoundedCornerShape(25.dp))
                 .background(MaterialTheme.colorScheme.secondaryContainer)
                 .size(120.dp)
-                .clickable {}
+                .clickable { }
                 .padding(13.dp),
             verticalArrangement = Arrangement.SpaceBetween
         ) {
-            Text(
-                text = finance.name,
-                color = MaterialTheme.colorScheme.onSecondaryContainer,
-                fontWeight = FontWeight.SemiBold,
-                fontSize = 15.sp
-            )
+            Column {
+                Text(
+                    text = stock.name,
+                    color = MaterialTheme.colorScheme.onSecondaryContainer,
+                    fontWeight = FontWeight.SemiBold,
+                    fontSize = 15.sp
+                )
+                if (price != null) {
+                    Text(
+                        text = "$${"%.2f".format(price)}",
+                        color = MaterialTheme.colorScheme.onSecondaryContainer,
+                        fontWeight = FontWeight.Normal,
+                        fontSize = 14.sp,
+                        modifier = Modifier.padding(top = 4.dp)
+                    )
+                } else {
+                    Text(
+                        text = "Loading...",
+                        color = MaterialTheme.colorScheme.onSecondaryContainer,
+                        fontWeight = FontWeight.Normal,
+                        fontSize = 14.sp,
+                        modifier = Modifier.padding(top = 4.dp)
+                    )
+                }
+            }
             Box(
-                modifier = Modifier.clip(RoundedCornerShape(16.dp))
-                    .background(finance.background)
+                modifier = Modifier
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(stock.background)
                     .padding(6.dp)
             ) {
-                Icon(
-                    imageVector = finance.icon,
-                    contentDescription = finance.name,
-                    tint = Color.White
-                )
             }
         }
     }

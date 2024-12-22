@@ -46,7 +46,7 @@ fun AllStocksScreen() {
         topBar = {
             TopAppBar(
                 title = { Text("All Stocks") },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color(0xFFB0FFB0))
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color(0xFF51F590))
             )
         }
     ) { paddingValues ->
@@ -54,12 +54,12 @@ fun AllStocksScreen() {
             contentPadding = paddingValues,
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp)
+                .padding(horizontal = 0.dp, vertical = 16.dp)
         ) {
-            items(stocks) { stock ->
-                StockItem(
-                    name = stock.name,
-                    symbol = stock.symbol,
+            items(stocks) { coin ->
+                CoinItem(
+                    name = coin.name,
+                    symbol = coin.symbol,
                     backgroundColor = Color(0xFFB0FFB0)
                 ) {
 
