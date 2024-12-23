@@ -1,4 +1,3 @@
-// Necessary Imports
 import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -21,10 +20,8 @@ import kotlinx.coroutines.withContext
 import org.jsoup.Jsoup
 import com.example.empapp.ui.theme.EMPAppTheme
 
-// Data Model
 data class Stock(val name: String, val symbol: String)
 
-// List of Stocks
 val stocksList = listOf(
     Stock("Apple", "AAPL"),
     Stock("Tesla", "TSLA"),
@@ -48,7 +45,6 @@ val stocksList = listOf(
     Stock("Spotify", "SPOT")
 )
 
-// Fetch Current Stock Price Function
 suspend fun fetchCurrentStock(stock: String): Float? {
     if (stock.contains("/")) {
         return null
@@ -58,7 +54,7 @@ suspend fun fetchCurrentStock(stock: String): Float? {
             val url = "https://finance.yahoo.com/quote/$stock"
             val doc = Jsoup.connect(url).get()
             val priceText = doc.select("fin-streamer[data-field=regularMarketPrice]").first()?.text()
-            priceText?.replace(",", "")?.toFloatOrNull() // Remove commas for numbers like "1,234.56"
+            priceText?.replace(",", "")?.toFloatOrNull()
         } catch (e: Exception) {
             Log.e("AllStocksScreen", "Error fetching current price for $stock", e)
             null
@@ -69,10 +65,8 @@ suspend fun fetchCurrentStock(stock: String): Float? {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AllStocksScreen() {
-    // State to hold prices map
     var prices by remember { mutableStateOf<Map<String, Float?>>(emptyMap()) }
 
-    // Launch coroutine to fetch prices
     LaunchedEffect(Unit) {
         val fetchedPrices = stocksList.map { stock ->
             async {
@@ -94,7 +88,7 @@ fun AllStocksScreen() {
             contentPadding = paddingValues,
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 16.dp, vertical = 16.dp) // Added horizontal padding for better UI
+                .padding(horizontal = 16.dp, vertical = 16.dp)
         ) {
             items(stocksList) { stock ->
                 StockItem(
@@ -103,7 +97,6 @@ fun AllStocksScreen() {
                     price = prices[stock.symbol],
                     backgroundColor = Color(0xFFB0FFB0)
                 ) {
-                    // Handle click if needed
                 }
                 Spacer(modifier = Modifier.height(8.dp))
             }
@@ -147,7 +140,6 @@ fun StockItem(
 
         when {
             price == null -> {
-                // Display loading indicator
                 Text(
                     text = "Loading...",
                     style = MaterialTheme.typography.bodyLarge,
@@ -156,7 +148,6 @@ fun StockItem(
                 )
             }
             price == -1f -> {
-                // Display error state
                 Text(
                     text = "N/A",
                     style = MaterialTheme.typography.bodyLarge,
@@ -165,7 +156,6 @@ fun StockItem(
                 )
             }
             else -> {
-                // Display fetched price
                 Text(
                     text = "$${"%.2f".format(price)}",
                     style = MaterialTheme.typography.bodyLarge,
