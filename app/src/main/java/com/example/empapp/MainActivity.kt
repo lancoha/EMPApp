@@ -55,7 +55,7 @@ class MainActivity : ComponentActivity() {
         }
     }
     object GlobalVariables {
-        val ChartSymbol = "AAPL" //kar je v ChartSymbol se izpise na chart <- link
+        val ChartSymbol = "BTC/USD" //kar je v ChartSymbol se izpise na chart <- link
     }
     @Composable
     private fun SetBarColor(color : Color){

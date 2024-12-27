@@ -14,6 +14,7 @@ import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.data.Entry
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -96,11 +97,42 @@ class ChartsScreen : AppCompatActivity() {
 
         if (existingAsset != null) {
             setupToggleFavButton(symbol, existingAsset.isFavourite, entries)
+            if (existingAsset.isFavourite) {
+                saveDataToDatabase(symbol, true, entries)
+            }
         } else {
             viewModel.addNewAsset(symbol, false)
             setupToggleFavButton(symbol, false, entries)
         }
     }
+    private fun saveDataToDatabase(symbol: String, isFavourite: Boolean, entries: List<Pair<String, Entry>>) {
+        lifecycleScope.launch {
+            val repo = AssetRepository.getInstance(applicationContext)
+            if (isFavourite) {
+                val dailyDataList = entries.map { (date, entry) ->
+                    AssetDailyData(
+                        assetId = symbol,
+                        datetime = date,
+                        close = entry.y.toDouble()
+                    )
+                }
+                viewModel.addNewAsset(symbol, true)
+                if (dailyDataList.isNotEmpty()) {
+                    viewModel.addDailyDataForAsset(dailyDataList)
+                }
+            } else {
+                val currentAssets = repo.getAllAssets()
+                val assetList = currentAssets.stateIn(this).value
+                val assetExists = assetList.any { it.id == symbol }
+                if (!assetExists) {
+                    viewModel.addNewAsset(symbol, false)
+                }
+                repo.updateFavouriteStatus(symbol, false)
+            }
+        }
+    }
+
+
     private fun setupToggleFavButton(
         symbol: String,
         isFavourite: Boolean,
