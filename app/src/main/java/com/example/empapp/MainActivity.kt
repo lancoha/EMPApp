@@ -53,30 +53,10 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
-
-        favouriteAsset("BTC/USD")  //na te 2 se zveze un favourite/unfavourite logic - ce je favouritan se shrani data v PB
-        unfavouriteAsset("TSLA")
     }
     object GlobalVariables {
-        val ChartSymbol = "BTC/USD" //kar je v ChartSymbol se izpise na chart <- link
+        val ChartSymbol = "AAPL" //kar je v ChartSymbol se izpise na chart <- link
     }
-    fun favouriteAsset(assetId: String) {
-        val repo = AssetRepository.getInstance(applicationContext)
-
-        CoroutineScope(Dispatchers.IO).launch {
-            repo.updateFavouriteStatus(assetId, true)
-        }
-    }
-    private fun unfavouriteAsset(assetId: String) {
-        val repo = AssetRepository.getInstance(applicationContext)
-
-        CoroutineScope(Dispatchers.IO).launch {
-            repo.updateFavouriteStatus(assetId, false)
-
-            repo.deleteAllDailyDataForAsset(assetId)
-        }
-    }
-
     @Composable
     private fun SetBarColor(color : Color){
         val systemUiController = rememberSystemUiController()

@@ -1,6 +1,5 @@
 package com.example.empapp
 
-import com.example.empapp.MainActivity
 import TwelveDataApi
 import android.content.Intent
 import android.os.Bundle
@@ -15,7 +14,6 @@ import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.data.Entry
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -39,12 +37,16 @@ class ChartsScreen : AppCompatActivity() {
             }
         }
     }
+
+    private lateinit var toggleFavButton: Button
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         lineChart = findViewById(R.id.lineChart)
         percentageChangeText = findViewById(R.id.percentageChangeText)
+        toggleFavButton = findViewById(R.id.btn_toggle_fav)
 
         chart = Chart(lineChart, percentageChangeText)
 
@@ -55,8 +57,6 @@ class ChartsScreen : AppCompatActivity() {
 
         val api = retrofit.create(TwelveDataApi::class.java)
         dataFetcher = DataFetcher(api, apiKey)
-
-
         dataFetcher.getStockData(MainActivity.GlobalVariables.ChartSymbol) { data ->
             lifecycleScope.launch {
                 if (data.isNotEmpty()) {
@@ -90,25 +90,53 @@ class ChartsScreen : AppCompatActivity() {
             setupChartButtons(fullData)
         }
     }
-
     private suspend fun processAssetBeforeSave(symbol: String, entries: List<Pair<String, Entry>>) {
         val repo = AssetRepository.getInstance(applicationContext)
-
         val existingAsset = repo.getAllAssets().first().find { it.id == symbol }
 
         if (existingAsset != null) {
-            if (existingAsset.isFavourite) {
-                saveDataToDatabase(symbol, true, entries)
-            }
+            setupToggleFavButton(symbol, existingAsset.isFavourite, entries)
         } else {
             viewModel.addNewAsset(symbol, false)
+            setupToggleFavButton(symbol, false, entries)
         }
     }
+    private fun setupToggleFavButton(
+        symbol: String,
+        isFavourite: Boolean,
+        currentEntries: List<Pair<String, Entry>>
+    ) {
+        toggleFavButton.text = if (isFavourite) "Unfavourite" else "Favourite"
 
+        toggleFavButton.setOnClickListener {
+            val newFav = !isFavourite
+
+            lifecycleScope.launch {
+                val repo = AssetRepository.getInstance(applicationContext)
+
+                repo.updateFavouriteStatus(symbol, newFav)
+
+                if (newFav) {
+                    viewModel.addNewAsset(symbol, true)
+
+                    val dailyDataList = currentEntries.map { (date, entry) ->
+                        AssetDailyData(
+                            assetId = symbol,
+                            datetime = date,
+                            close = entry.y.toDouble()
+                        )
+                    }
+                    if (dailyDataList.isNotEmpty()) {
+                        viewModel.addDailyDataForAsset(dailyDataList)
+                    }
+                }
+                setupToggleFavButton(symbol, newFav, currentEntries)
+            }
+        }
+    }
     private fun fetchDataFromDatabase(stock: String) {
         lifecycleScope.launch(Dispatchers.IO) {
             val repo = AssetRepository.getInstance(applicationContext)
-
             val dailyData = repo.getDailyDataForAsset(stock).first()
 
             if (dailyData.isNotEmpty()) {
@@ -119,10 +147,26 @@ class ChartsScreen : AppCompatActivity() {
                 launch(Dispatchers.Main) {
                     chart.setUpLineChartData(entries)
                     setupChartButtons(entries)
+
+                    val existingAsset = repo.getAllAssets().first().find { it.id == stock }
+                    if (existingAsset != null) {
+                        setupToggleFavButton(stock, existingAsset.isFavourite, entries)
+                    } else {
+                        viewModel.addNewAsset(stock, false)
+                        setupToggleFavButton(stock, false, entries)
+                    }
                 }
             } else {
                 launch(Dispatchers.Main) {
                     percentageChangeText.text = "V PB ni podatkov za prikaz.(Asset ni pod Favourites)"
+
+                    val existingAsset = repo.getAllAssets().first().find { it.id == stock }
+                    if (existingAsset != null) {
+                        setupToggleFavButton(stock, existingAsset.isFavourite, emptyList())
+                    } else {
+                        viewModel.addNewAsset(stock, false)
+                        setupToggleFavButton(stock, false, emptyList())
+                    }
                 }
             }
         }
@@ -143,38 +187,6 @@ class ChartsScreen : AppCompatActivity() {
 
         findViewById<Button>(R.id.btn_all).setOnClickListener {
             chart.updateChartWithTimeFrame(data, "ALL")
-        }
-    }
-
-    private fun saveDataToDatabase(symbol: String, isFavourite: Boolean, entries: List<Pair<String, Entry>>) {
-        lifecycleScope.launch {
-            val repo = AssetRepository.getInstance(applicationContext)
-
-            if (isFavourite) {
-                val dailyDataList = entries.map { (date, entry) ->
-                    AssetDailyData(
-                        assetId = symbol,
-                        datetime = date,
-                        close = entry.y.toDouble()
-                    )
-                }
-
-                viewModel.addNewAsset(symbol, true)
-
-                if (dailyDataList.isNotEmpty()) {
-                    viewModel.addDailyDataForAsset(dailyDataList)
-                }
-            } else {
-                val currentAssets = repo.getAllAssets()
-                val assetList = currentAssets.stateIn(this).value
-                val assetExists = assetList.any { it.id == symbol }
-
-                if (!assetExists) {
-                    viewModel.addNewAsset(symbol, false)
-                }
-
-                repo.updateFavouriteStatus(symbol, false)
-            }
         }
     }
 }

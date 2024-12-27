@@ -32,7 +32,15 @@ class AssetRepository(private val db: AppDatabase) {
     }
 
     suspend fun updateFavouriteStatus(assetId: String, isFav: Boolean) {
-        db.assetDao().updateFavouriteStatus(assetId, isFav)
+        val asset = db.assetDao().getAssetById(assetId)
+
+        if (asset == null) {
+            val newAsset = Asset(id = assetId, isFavourite = isFav)
+            db.assetDao().insertAsset(newAsset)
+        } else {
+            db.assetDao().updateFavouriteStatus(assetId, isFav)
+        }
+
         if (!isFav) {
             db.assetDailyDataDao().deleteAllDailyDataForAsset(assetId)
         }
