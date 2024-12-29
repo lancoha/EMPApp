@@ -13,12 +13,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
+import com.example.empapp.MainActivity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.withContext
 import org.jsoup.Jsoup
 import com.example.empapp.ui.theme.EMPAppTheme
+
 
 data class Coin(val name: String, val symbol: String)
 
@@ -61,7 +65,7 @@ suspend fun fetchCurrentPrice(stock: String): Float? {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AllCoinsScreen() {
+fun AllCoinsScreen(navController: NavController) {
     var prices by remember { mutableStateOf<Map<String, Float?>>(emptyMap()) }
 
     LaunchedEffect(Unit) {
@@ -92,7 +96,10 @@ fun AllCoinsScreen() {
                     name = coin.name,
                     symbol = coin.symbol,
                     price = prices[coin.symbol]
-                )
+                ) {
+                    MainActivity.GlobalVariables.ChartSymbol = "${coin.symbol}/USD"
+                    navController.navigate("charts")
+                }
                 Spacer(modifier = Modifier.height(8.dp))
             }
         }
@@ -100,13 +107,13 @@ fun AllCoinsScreen() {
 }
 
 @Composable
-fun CoinItem(name: String, symbol: String, price: Float?) {
+fun CoinItem(name: String, symbol: String, price: Float?, onClick: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .height(80.dp)
             .background(MaterialTheme.colorScheme.primaryContainer, RoundedCornerShape(12.dp))
-            .clickable {  }
+            .clickable { onClick() }
             .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
@@ -160,6 +167,7 @@ fun CoinItem(name: String, symbol: String, price: Float?) {
 @Composable
 fun AllCoinsScreenPreview() {
     EMPAppTheme {
-        AllCoinsScreen()
+        val mockNavController = rememberNavController()
+        AllCoinsScreen(navController = mockNavController)
     }
 }

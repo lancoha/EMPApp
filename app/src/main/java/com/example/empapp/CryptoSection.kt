@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -26,6 +27,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.example.empapp.Data.Crypto
 import com.example.empapp.ui.theme.BlueStart
 import com.example.empapp.ui.theme.GreenStart
@@ -63,13 +65,14 @@ val cryptoList = listOf(
 @Preview(showBackground = true)
 @Composable
 fun CryptoSectionPreview() {
-    CryptoSection()
+    CryptoSection(
+        navController = TODO()
+    )
 }
 
 @Composable
-fun CryptoSection() {
+fun CryptoSection(navController: NavController){
     var prices by remember { mutableStateOf<Map<String, Float?>>(emptyMap()) }
-
     val coroutineScope = rememberCoroutineScope()
 
     LaunchedEffect(Unit) {
@@ -93,16 +96,20 @@ fun CryptoSection() {
             contentPadding = PaddingValues(horizontal = 16.dp),
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            items(cryptoList.size) { index ->
-                val crypto = cryptoList[index]
+            items(cryptoList) { crypto ->
                 CryptoItem(
                     crypto = crypto,
-                    price = prices[crypto.symbol]
+                    price = prices[crypto.symbol],
+                    onClick = {
+                        MainActivity.GlobalVariables.ChartSymbol = "${crypto.symbol}/USD"
+                        navController.navigate("charts")
+                    }
                 )
             }
         }
     }
 }
+
 
 suspend fun fetchCurrentPrice(stock: String): Float? {
     return withContext(Dispatchers.IO) {
@@ -110,7 +117,7 @@ suspend fun fetchCurrentPrice(stock: String): Float? {
             val url = "https://finance.yahoo.com/quote/${stock}-USD"
             val doc = Jsoup.connect(url).get()
             val priceText = doc.select("fin-streamer[data-field=regularMarketPrice]").first()?.text()
-            priceText?.replace(",", "")?.toFloatOrNull() // Remove commas for numbers like "34,000"
+            priceText?.replace(",", "")?.toFloatOrNull()
         } catch (e: Exception) {
             Log.e("CryptoSection", "Error fetching current price for $stock", e)
             null
@@ -121,14 +128,15 @@ suspend fun fetchCurrentPrice(stock: String): Float? {
 @Composable
 fun CryptoItem(
     crypto: Crypto,
-    price: Float?
+    price: Float?,
+    onClick: () -> Unit
 ) {
     Column(
         modifier = Modifier
             .clip(RoundedCornerShape(25.dp))
             .background(MaterialTheme.colorScheme.secondaryContainer)
             .size(120.dp)
-            .clickable { }
+            .clickable { onClick() }
             .padding(13.dp),
         verticalArrangement = Arrangement.SpaceBetween
     ) {
@@ -166,3 +174,4 @@ fun CryptoItem(
         }
     }
 }
+

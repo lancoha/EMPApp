@@ -47,11 +47,11 @@ suspend fun fetchCurrent(asset: String): Float? {
 @Composable
 fun ExploreScreen(navController: NavController) {
     val coinsList = listOf(
-        Coin("Bitcoin", "BTC-USD"),
-        Coin("Ethereum", "ETH-USD"),
-        Coin("Solana", "SOL-USD"),
-        Coin("DogeCoin", "DOGE-USD"),
-        Coin("XRP", "XRP-USD")
+        Coin("Bitcoin", "BTC"),
+        Coin("Ethereum", "ETH"),
+        Coin("Solana", "SOL"),
+        Coin("DogeCoin", "DOGE"),
+        Coin("XRP", "XRP")
     )
 
     val stocksList = listOf(
@@ -106,6 +106,8 @@ fun ExploreScreen(navController: NavController) {
                     backgroundColor = MaterialTheme.colorScheme.primaryContainer,
                     price = coinPrices[coin.symbol]
                 ) {
+                    MainActivity.GlobalVariables.ChartSymbol = "${coin.symbol}/USD"
+                    navController.navigate("charts")
                 }
             }
 
@@ -143,6 +145,8 @@ fun ExploreScreen(navController: NavController) {
                     backgroundColor = Color(0xFFB0FFB0),
                     price = stockPrices[stock.symbol]
                 ) {
+                    MainActivity.GlobalVariables.ChartSymbol = stock.symbol
+                    navController.navigate("charts")
                 }
             }
 
@@ -161,6 +165,7 @@ fun ExploreScreen(navController: NavController) {
         }
     }
 }
+
 
 @Composable
 fun CoinOrStockItem(
@@ -226,6 +231,8 @@ fun CoinOrStockItem(
         }
     }
 }
+
+
 
 @Preview(showBackground = true)
 @Composable

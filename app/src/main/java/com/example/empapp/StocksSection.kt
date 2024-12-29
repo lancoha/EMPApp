@@ -31,6 +31,7 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.withContext
 import org.jsoup.Jsoup
 import android.util.Log
+import androidx.navigation.NavController
 
 val stockList = listOf(
     Stock(
@@ -58,11 +59,13 @@ val stockList = listOf(
 @Preview(showBackground = true)
 @Composable
 fun StocksSectionPreview() {
-    StocksSection()
+    StocksSection(
+        navController = TODO()
+    )
 }
 
 @Composable
-fun StocksSection() {
+fun StocksSection(navController: NavController) {
     var prices by remember { mutableStateOf<Map<String, Float?>>(emptyMap()) }
 
     val coroutineScope = rememberCoroutineScope()
@@ -109,7 +112,11 @@ fun StocksSection() {
                 val symbol = stock.name.split("\n").getOrNull(1) ?: ""
                 StockItem(
                     stock = stock,
-                    price = prices[symbol]
+                    price = prices[symbol],
+                    onClick = {
+                        MainActivity.GlobalVariables.ChartSymbol = stock.symbol
+                        navController.navigate("charts")
+                    }
                 )
             }
         }
@@ -119,7 +126,8 @@ fun StocksSection() {
 @Composable
 fun StockItem(
     stock: Stock,
-    price: Float?
+    price: Float?,
+    onClick: () -> Unit
 ) {
     val isLastItem = stockList.last() == stock
     val endPadding = if (isLastItem) 16.dp else 0.dp
@@ -130,7 +138,7 @@ fun StockItem(
                 .clip(RoundedCornerShape(25.dp))
                 .background(MaterialTheme.colorScheme.secondaryContainer)
                 .size(120.dp)
-                .clickable { }
+                .clickable { onClick() }
                 .padding(13.dp),
             verticalArrangement = Arrangement.SpaceBetween
         ) {

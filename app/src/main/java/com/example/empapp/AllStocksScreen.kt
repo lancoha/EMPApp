@@ -13,6 +13,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
+import com.example.empapp.MainActivity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -64,7 +67,7 @@ suspend fun fetchCurrentStock(stock: String): Float? {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AllStocksScreen() {
+fun AllStocksScreen(navController: NavController) {
     var prices by remember { mutableStateOf<Map<String, Float?>>(emptyMap()) }
 
     LaunchedEffect(Unit) {
@@ -97,6 +100,8 @@ fun AllStocksScreen() {
                     price = prices[stock.symbol],
                     backgroundColor = Color(0xFFB0FFB0)
                 ) {
+                    MainActivity.GlobalVariables.ChartSymbol = stock.symbol
+                    navController.navigate("charts")
                 }
                 Spacer(modifier = Modifier.height(8.dp))
             }
@@ -171,6 +176,7 @@ fun StockItem(
 @Composable
 fun AllStocksScreenPreview() {
     EMPAppTheme {
-        AllStocksScreen()
+        val mockNavController = rememberNavController()
+        AllStocksScreen(navController = mockNavController)
     }
 }
