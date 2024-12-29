@@ -106,7 +106,7 @@ class ChartWidgetProvider : AppWidgetProvider() {
                             val price = entries.lastOrNull()?.y ?: 0f
                             views.setTextViewText(R.id.timeframe, timeframe)
                             views.setTextViewText(R.id.stock, stockSymbol)
-                            views.setTextViewText(R.id.current_price, "$price $")
+                            views.setTextViewText(R.id.current_price, "$$price")
 
                             val change1D = chart.calculateChangePercentage(entries, dataList, 1)
                             val change7D = chart.calculateChangePercentage(entries, dataList, 7)

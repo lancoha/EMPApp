@@ -1,6 +1,7 @@
 package com.example.empapp
 
 import TwelveDataApi
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
@@ -50,7 +51,6 @@ class ChartsScreen : AppCompatActivity() {
         toggleFavButton = findViewById(R.id.btn_toggle_fav)
 
         chart = Chart(lineChart, percentageChangeText)
-
         val retrofit = Retrofit.Builder()
             .baseUrl("https://api.twelvedata.com/")
             .addConverterFactory(GsonConverterFactory.create())
@@ -58,11 +58,17 @@ class ChartsScreen : AppCompatActivity() {
 
         val api = retrofit.create(TwelveDataApi::class.java)
         dataFetcher = DataFetcher(api, apiKey)
+        lineChart.setNoDataText("Fetching data from API...")
+        lineChart.invalidate()
         dataFetcher.getStockData(MainActivity.GlobalVariables.ChartSymbol) { data ->
             lifecycleScope.launch {
                 if (data.isNotEmpty()) {
+                    lineChart.setNoDataText("Processing API data...")
+                    lineChart.invalidate()
                     handleApiData(MainActivity.GlobalVariables.ChartSymbol, data)
                 } else {
+                    lineChart.setNoDataText("Failed to fetch API data. Loading data from the database...")
+                    lineChart.invalidate()
                     fetchDataFromDatabase(MainActivity.GlobalVariables.ChartSymbol)
                 }
             }
@@ -83,14 +89,16 @@ class ChartsScreen : AppCompatActivity() {
                 val today = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
                 fullData.add(Pair(today, Entry(fullData.size.toFloat(), currentPrice)))
             }
-
+            lineChart.setNoDataText("Displaying the chart...")
+            lineChart.invalidate()
             chart.setUpLineChartData(fullData)
+            lineChart.invalidate()
 
             processAssetBeforeSave(stock, fullData)
-
             setupChartButtons(fullData)
         }
     }
+
     private suspend fun processAssetBeforeSave(symbol: String, entries: List<Pair<String, Entry>>) {
         val repo = AssetRepository.getInstance(applicationContext)
         val existingAsset = repo.getAllAssets().first().find { it.id == symbol }
@@ -105,6 +113,7 @@ class ChartsScreen : AppCompatActivity() {
             setupToggleFavButton(symbol, false, entries)
         }
     }
+
     private fun saveDataToDatabase(symbol: String, isFavourite: Boolean, entries: List<Pair<String, Entry>>) {
         lifecycleScope.launch {
             val repo = AssetRepository.getInstance(applicationContext)
@@ -131,7 +140,6 @@ class ChartsScreen : AppCompatActivity() {
             }
         }
     }
-
 
     private fun setupToggleFavButton(
         symbol: String,
@@ -166,6 +174,7 @@ class ChartsScreen : AppCompatActivity() {
             }
         }
     }
+
     private fun fetchDataFromDatabase(stock: String) {
         lifecycleScope.launch(Dispatchers.IO) {
             val repo = AssetRepository.getInstance(applicationContext)
@@ -177,7 +186,10 @@ class ChartsScreen : AppCompatActivity() {
                 }
 
                 launch(Dispatchers.Main) {
+                    lineChart.setNoDataText("Displaying the chart...")
+                    lineChart.invalidate()
                     chart.setUpLineChartData(entries)
+                    lineChart.invalidate()
                     setupChartButtons(entries)
 
                     val existingAsset = repo.getAllAssets().first().find { it.id == stock }
@@ -190,7 +202,9 @@ class ChartsScreen : AppCompatActivity() {
                 }
             } else {
                 launch(Dispatchers.Main) {
-                    percentageChangeText.text = "V PB ni podatkov za prikaz.(Asset ni pod Favourites)"
+                    lineChart.setNoDataText("No data to display from the database")
+                    lineChart.invalidate()
+                    percentageChangeText.text = "Favourite the asset for data to be stored in the database"
 
                     val existingAsset = repo.getAllAssets().first().find { it.id == stock }
                     if (existingAsset != null) {

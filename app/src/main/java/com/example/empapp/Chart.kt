@@ -105,7 +105,7 @@ class Chart(private val lineChart: LineChart, private val percentageChangeText: 
 
         val percentageChange = calculatePercentageChange(firstValue, lastValue)
 
-        percentageChangeText.text = "Price: $currentPrice $\nChange: $percentageChange%\n\n" +
+        percentageChangeText.text = "Price: $$currentPrice\nChange: $percentageChange%\n\n" +
                 "1 mesec: $change1MDays%\n" +
                 "7 dni: $change7Days%\n" +
                 "1 dan: $change1Day%"
