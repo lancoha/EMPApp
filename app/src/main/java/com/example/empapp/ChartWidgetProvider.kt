@@ -7,15 +7,18 @@ import android.appwidget.AppWidgetProvider
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.widget.RemoteViews
 import android.graphics.Bitmap
-import android.widget.TextView
+import android.graphics.Canvas
+import android.graphics.Color
+import android.widget.RemoteViews
 import androidx.work.*
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.data.Entry
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.text.SimpleDateFormat
@@ -78,11 +81,11 @@ class ChartWidgetProvider : AppWidgetProvider() {
             views.setOnClickPendingIntent(R.id.widget_chart_image, updatePendingIntent)
 
             val lineChart = LineChart(context)
-            val textView = TextView(context)
+            val textView = android.widget.TextView(context)
 
             dataFetcher.getStockData(stockSymbol) { data ->
-                if (data != null) {
-                    CoroutineScope(Dispatchers.Main).launch {
+                CoroutineScope(Dispatchers.Main).launch {
+                    if (data != null && data.isNotEmpty()) {
                         try {
                             val dataList = data.toMutableList()
                             val currentPrice = dataFetcher.fetchCurrentPrice(stockSymbol)
@@ -96,7 +99,6 @@ class ChartWidgetProvider : AppWidgetProvider() {
                             }
 
                             val chart = Chart(lineChart, textView)
-
                             chart.updateChartWithTimeFrameWidget(dataList, timeframe)
 
                             val chartBitmap: Bitmap = chart.getChartBitmap(800, 200)
@@ -116,10 +118,110 @@ class ChartWidgetProvider : AppWidgetProvider() {
                             views.setTextViewText(R.id.change_7d, "7D: $change7D%")
                             views.setTextViewText(R.id.change_30d, "1M: $change1M%")
 
+                            CoroutineScope(Dispatchers.IO).launch {
+                                val repo = AssetRepository.getInstance(context)
+                                val isFavourite = repo.getAllAssets().first().any { it.id == stockSymbol && it.isFavourite }
+
+                                if (isFavourite) {
+                                    saveDataToDatabase(context, stockSymbol, dataList)
+                                }
+                            }
+
                             appWidgetManager.updateAppWidget(appWidgetId, views)
                         } catch (e: Exception) {
                             e.printStackTrace()
+                            fetchDataFromDatabase(context, appWidgetManager, appWidgetId, stockSymbol, timeframe)
                         }
+                    } else {
+                        fetchDataFromDatabase(context, appWidgetManager, appWidgetId, stockSymbol, timeframe)
+                    }
+                }
+            }
+        }
+
+        private fun fetchDataFromDatabase(
+            context: Context,
+            appWidgetManager: AppWidgetManager,
+            appWidgetId: Int,
+            stockSymbol: String,
+            timeframe: String
+        ) {
+            CoroutineScope(Dispatchers.IO).launch {
+                val repo = AssetRepository.getInstance(context)
+                val dailyData = repo.getDailyDataForAsset(stockSymbol).first()
+
+                if (dailyData.isNotEmpty()) {
+                    val entries = dailyData.mapIndexed { index, data ->
+                        Pair(data.datetime, Entry(index.toFloat(), data.close.toFloat()))
+                    }
+
+                    withContext(Dispatchers.Main) {
+                        val lineChart = LineChart(context)
+                        val textView = android.widget.TextView(context)
+                        val chart = Chart(lineChart, textView)
+                        chart.updateChartWithTimeFrameWidget(entries, timeframe)
+
+                        val chartBitmap: Bitmap = chart.getChartBitmap(800, 200)
+                        val views = RemoteViews(context.packageName, R.layout.widget_layout)
+                        views.setImageViewBitmap(R.id.widget_chart_image, chartBitmap)
+
+                        val price = entries.map { it.second.y }.lastOrNull() ?: 0f
+                        views.setTextViewText(R.id.timeframe, "$timeframe <- DB")
+                        views.setTextViewText(R.id.stock, stockSymbol)
+                        views.setTextViewText(R.id.current_price, "$$price")
+
+                        val change1D = chart.calculateChangePercentage(entries.map { it.second }, entries, 1)
+                        val change7D = chart.calculateChangePercentage(entries.map { it.second }, entries, 7)
+                        val change1M = chart.calculateChangePercentage(entries.map { it.second }, entries, 31)
+
+                        views.setTextViewText(R.id.change_1d, "1D: $change1D%")
+                        views.setTextViewText(R.id.change_7d, "7D: $change7D%")
+                        views.setTextViewText(R.id.change_30d, "1M: $change1M%")
+
+                        appWidgetManager.updateAppWidget(appWidgetId, views)
+                    }
+                } else {
+                    withContext(Dispatchers.Main) {
+
+                        val views = RemoteViews(context.packageName, R.layout.widget_layout)
+
+                        val blankBitmap = Bitmap.createBitmap(800, 200, Bitmap.Config.ARGB_8888)
+                        val blankCanvas = Canvas(blankBitmap)
+                        blankCanvas.drawColor(Color.TRANSPARENT)
+
+                        views.setImageViewBitmap(R.id.widget_chart_image, blankBitmap)
+                        views.setTextViewText(R.id.timeframe, "No data")
+                        views.setTextViewText(R.id.stock, stockSymbol)
+                        views.setTextViewText(R.id.current_price, "in database")
+                        views.setTextViewText(R.id.change_1d, "1D: N/A")
+                        views.setTextViewText(R.id.change_7d, "7D: N/A")
+                        views.setTextViewText(R.id.change_30d, "1M: N/A")
+
+                        appWidgetManager.updateAppWidget(appWidgetId, views)
+                    }
+                }
+            }
+        }
+
+        private suspend fun saveDataToDatabase(
+            context: Context,
+            stockSymbol: String,
+            dataList: List<Pair<String, Entry>>
+        ) {
+            withContext(Dispatchers.IO) {
+                val repo = AssetRepository.getInstance(context)
+                val dailyDataList = dataList.map { (date, entry) ->
+                    AssetDailyData(
+                        assetId = stockSymbol,
+                        datetime = date,
+                        close = entry.y.toDouble()
+                    )
+                }
+                val existingAsset = repo.getAllAssets().first().find { it.id == stockSymbol }
+
+                if (existingAsset != null && existingAsset.isFavourite) {
+                    if (dailyDataList.isNotEmpty()) {
+                        repo.insertAllDailyData(dailyDataList)
                     }
                 }
             }
