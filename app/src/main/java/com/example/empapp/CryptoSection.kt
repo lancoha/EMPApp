@@ -96,6 +96,7 @@ fun CryptoSection(navController: NavController, assetViewModel: AssetViewModel){
                     onClick = {
                         coroutineScope.launch {
                             assetViewModel.addRecent(crypto.symbol)
+                            assetViewModel.trackClick(crypto.symbol)
                         }
                         MainActivity.GlobalVariables.ChartSymbol = "${crypto.symbol}/USD"
                         navController.navigate("charts")

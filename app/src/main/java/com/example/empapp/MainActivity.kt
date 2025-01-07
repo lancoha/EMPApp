@@ -137,6 +137,8 @@ fun HomeScreenContent(navController: NavController, assetViewModel: AssetViewMod
         Spacer(modifier = Modifier.height(16.dp))
         StocksSection(navController = navController, assetViewModel = assetViewModel)
         Spacer(modifier = Modifier.height(16.dp))
+        PopularSection(navController = navController, assetViewModel = assetViewModel)
+        Spacer(modifier = Modifier.height(16.dp))
         LearnSection()
     }
 }

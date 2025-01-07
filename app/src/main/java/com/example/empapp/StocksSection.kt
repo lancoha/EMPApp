@@ -109,6 +109,7 @@ fun StocksSection(navController: NavController, assetViewModel: AssetViewModel) 
                     onClick = {
                         coroutineScope.launch {
                             assetViewModel.addRecent(stock.symbol)
+                            assetViewModel.trackClick(stock.symbol)
                         }
                         MainActivity.GlobalVariables.ChartSymbol = stock.symbol
                         navController.navigate("charts")

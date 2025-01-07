@@ -18,6 +18,9 @@ class AssetViewModel(private val repository: AssetRepository) : ViewModel() {
         assets.filter { it.isFavourite }
     }.stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
 
+    val popularAssets = repository.getTop5Popular()
+        .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
+
     fun addNewAsset(id: String, isFavourite: Boolean) {
         viewModelScope.launch {
             repository.insertAsset(Asset(id, isFavourite))
@@ -41,6 +44,12 @@ class AssetViewModel(private val repository: AssetRepository) : ViewModel() {
     fun addRecent(assetId: String) {
         viewModelScope.launch {
             repository.insertRecent(assetId)
+        }
+    }
+
+    fun trackClick(assetId: String) {
+        viewModelScope.launch {
+            repository.incrementClickCount(assetId)
         }
     }
 }

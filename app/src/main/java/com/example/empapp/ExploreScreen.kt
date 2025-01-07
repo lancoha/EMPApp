@@ -112,6 +112,7 @@ fun ExploreScreen(navController: NavController, assetViewModel: AssetViewModel) 
                 ) {
                     scope.launch {
                         assetViewModel.addRecent(coin.symbol)
+                        assetViewModel.trackClick(coin.symbol)
                     }
                     MainActivity.GlobalVariables.ChartSymbol = "${coin.symbol}/USD"
                     navController.navigate("charts")
@@ -154,6 +155,7 @@ fun ExploreScreen(navController: NavController, assetViewModel: AssetViewModel) 
                 ) {
                     scope.launch {
                         assetViewModel.addRecent(stock.symbol)
+                        assetViewModel.trackClick(stock.symbol)
                     }
                     MainActivity.GlobalVariables.ChartSymbol = stock.symbol
                     navController.navigate("charts")

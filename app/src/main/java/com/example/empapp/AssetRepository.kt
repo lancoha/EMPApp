@@ -72,4 +72,15 @@ class AssetRepository(private val db: AppDatabase) {
         db.recentDao().insertRecent(Recent(assetId = assetId))
         db.recentDao().maintainRecentLimit()
     }
+
+    fun getTop5Popular(): Flow<List<Popular>> = db.popularDao().getTop5Popular()
+
+    suspend fun incrementClickCount(assetId: String) {
+        val existing = db.popularDao().getPopularById(assetId)
+        if (existing == null) {
+            db.popularDao().insertOrUpdate(Popular(assetId = assetId, clickCount = 1))
+        } else {
+            db.popularDao().insertOrUpdate(existing.copy(clickCount = existing.clickCount + 1))
+        }
+    }
 }
