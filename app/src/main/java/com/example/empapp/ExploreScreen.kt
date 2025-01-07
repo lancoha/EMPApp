@@ -230,6 +230,14 @@ fun CoinOrStockItem(
                     fontWeight = FontWeight.Normal
                 )
             }
+            price == 4f -> {
+                Text(
+                    text = "",
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = Color.Red,
+                    fontWeight = FontWeight.Normal
+                )
+            }
             else -> {
                 Text(
                     text = "$${"%.2f".format(price)}",

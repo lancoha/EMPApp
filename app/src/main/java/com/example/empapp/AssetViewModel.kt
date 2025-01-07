@@ -3,6 +3,7 @@ package com.example.empapp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
@@ -13,6 +14,9 @@ class AssetViewModel(private val repository: AssetRepository) : ViewModel() {
     val recentAssets = repository.getRecents()
         .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
 
+    val favouriteAssets = allAssets.map { assets ->
+        assets.filter { it.isFavourite }
+    }.stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
 
     fun addNewAsset(id: String, isFavourite: Boolean) {
         viewModelScope.launch {
