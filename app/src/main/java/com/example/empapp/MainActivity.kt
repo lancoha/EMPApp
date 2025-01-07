@@ -85,7 +85,10 @@ fun HomeScreen(name: String, modifier: Modifier = Modifier) {
             modifier = Modifier.padding(padding)
         ) {
             composable("home") {
-                HomeScreenContent(navController = navController)
+                val context = LocalContext.current
+                val repository = AssetRepository.getInstance(context)
+                val assetViewModel = AssetViewModel(repository)
+                HomeScreenContent(navController = navController, assetViewModel = assetViewModel)
             }
 
             composable("charts") {
@@ -122,7 +125,7 @@ fun HomeScreen(name: String, modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun HomeScreenContent(navController: NavController){
+fun HomeScreenContent(navController: NavController, assetViewModel: AssetViewModel){
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -130,9 +133,9 @@ fun HomeScreenContent(navController: NavController){
             .padding(0.dp)
     ) {
         TitleSection()
-        CryptoSection(navController = navController)
+        CryptoSection(navController = navController, assetViewModel = assetViewModel)
         Spacer(modifier = Modifier.height(16.dp))
-        StocksSection(navController = navController)
+        StocksSection(navController = navController, assetViewModel = assetViewModel)
         Spacer(modifier = Modifier.height(16.dp))
         LearnSection()
     }

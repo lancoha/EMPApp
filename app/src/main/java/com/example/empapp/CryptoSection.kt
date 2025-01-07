@@ -36,6 +36,7 @@ import com.example.empapp.ui.theme.PurpleStart
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.jsoup.Jsoup
 
@@ -62,16 +63,8 @@ val cryptoList = listOf(
     )
 )
 
-@Preview(showBackground = true)
 @Composable
-fun CryptoSectionPreview() {
-    CryptoSection(
-        navController = TODO()
-    )
-}
-
-@Composable
-fun CryptoSection(navController: NavController){
+fun CryptoSection(navController: NavController, assetViewModel: AssetViewModel){
     var prices by remember { mutableStateOf<Map<String, Float?>>(emptyMap()) }
     val coroutineScope = rememberCoroutineScope()
 
@@ -101,6 +94,9 @@ fun CryptoSection(navController: NavController){
                     crypto = crypto,
                     price = prices[crypto.symbol],
                     onClick = {
+                        coroutineScope.launch {
+                            assetViewModel.addRecent(crypto.symbol)
+                        }
                         MainActivity.GlobalVariables.ChartSymbol = "${crypto.symbol}/USD"
                         navController.navigate("charts")
                     }
