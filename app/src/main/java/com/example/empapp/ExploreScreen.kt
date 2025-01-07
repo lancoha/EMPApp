@@ -23,6 +23,7 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.withContext
 import org.jsoup.Jsoup
 import com.example.empapp.ui.theme.EMPAppTheme
+import kotlinx.coroutines.launch
 
 data class Coin(val name: String, val symbol: String)
 data class Stock(val name: String, val symbol: String)
@@ -45,7 +46,8 @@ suspend fun fetchCurrent(asset: String): Float? {
 }
 
 @Composable
-fun ExploreScreen(navController: NavController) {
+fun ExploreScreen(navController: NavController, assetViewModel: AssetViewModel) {
+
     val coinsList = listOf(
         Coin("Bitcoin", "BTC"),
         Coin("Ethereum", "ETH"),
@@ -64,6 +66,8 @@ fun ExploreScreen(navController: NavController) {
 
     var coinPrices by remember { mutableStateOf<Map<String, Float?>>(emptyMap()) }
     var stockPrices by remember { mutableStateOf<Map<String, Float?>>(emptyMap()) }
+
+    val scope = rememberCoroutineScope()
 
     LaunchedEffect(Unit) {
         val fetchedCoinPrices = coinsList.map { coin ->
@@ -106,6 +110,9 @@ fun ExploreScreen(navController: NavController) {
                     backgroundColor = MaterialTheme.colorScheme.primaryContainer,
                     price = coinPrices[coin.symbol]
                 ) {
+                    scope.launch {
+                        assetViewModel.addRecent(coin.symbol)
+                    }
                     MainActivity.GlobalVariables.ChartSymbol = "${coin.symbol}/USD"
                     navController.navigate("charts")
                 }
@@ -145,6 +152,9 @@ fun ExploreScreen(navController: NavController) {
                     backgroundColor = Color(0xFFB0FFB0),
                     price = stockPrices[stock.symbol]
                 ) {
+                    scope.launch {
+                        assetViewModel.addRecent(stock.symbol)
+                    }
                     MainActivity.GlobalVariables.ChartSymbol = stock.symbol
                     navController.navigate("charts")
                 }
@@ -232,13 +242,3 @@ fun CoinOrStockItem(
     }
 }
 
-
-
-@Preview(showBackground = true)
-@Composable
-fun ExploreScreenPreview() {
-    EMPAppTheme {
-        val mockNavController = rememberNavController()
-        ExploreScreen(navController = mockNavController)
-    }
-}

@@ -2,7 +2,6 @@ package com.example.empapp
 
 import AllCoinsScreen
 import AllStocksScreen
-import FavouritesScreen
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -31,6 +30,7 @@ import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import androidx.lifecycle.viewmodel.compose.viewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -97,7 +97,10 @@ fun HomeScreen(name: String, modifier: Modifier = Modifier) {
             }
 
             composable("explore") {
-                ExploreScreen(navController = navController)
+                val context = LocalContext.current
+                val assetRepository = AssetRepository.getInstance(context)
+                val assetViewModel = AssetViewModel(assetRepository)
+                ExploreScreen(navController = navController, assetViewModel = assetViewModel)
             }
 
             composable("allCoinsScreen") {
@@ -109,7 +112,10 @@ fun HomeScreen(name: String, modifier: Modifier = Modifier) {
             }
 
             composable("favourites") {
-                FavouritesScreen(navController = navController)
+                val context = LocalContext.current
+                val repository = AssetRepository.getInstance(context)
+                val assetViewModel = AssetViewModel(repository)
+                FavouritesScreen(navController = navController, assetViewModel = assetViewModel)
             }
         }
     }

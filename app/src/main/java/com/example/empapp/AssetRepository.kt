@@ -64,4 +64,12 @@ class AssetRepository(private val db: AppDatabase) {
     suspend fun deleteAllDailyDataForAsset(assetId: String) {
         db.assetDailyDataDao().deleteAllDailyDataForAsset(assetId)
     }
+
+    fun getRecents(): Flow<List<Recent>> = db.recentDao().getRecents()
+
+    suspend fun insertRecent(assetId: String) {
+        db.recentDao().removeAsset(assetId)
+        db.recentDao().insertRecent(Recent(assetId = assetId))
+        db.recentDao().maintainRecentLimit()
+    }
 }

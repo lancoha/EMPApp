@@ -10,6 +10,10 @@ class AssetViewModel(private val repository: AssetRepository) : ViewModel() {
     val allAssets = repository.getAllAssets()
         .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
 
+    val recentAssets = repository.getRecents()
+        .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
+
+
     fun addNewAsset(id: String, isFavourite: Boolean) {
         viewModelScope.launch {
             repository.insertAsset(Asset(id, isFavourite))
@@ -29,4 +33,10 @@ class AssetViewModel(private val repository: AssetRepository) : ViewModel() {
     }
 
     fun getDailyDataFlow(assetId: String) = repository.getDailyDataForAsset(assetId)
+
+    fun addRecent(assetId: String) {
+        viewModelScope.launch {
+            repository.insertRecent(assetId)
+        }
+    }
 }
