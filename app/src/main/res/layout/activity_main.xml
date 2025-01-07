@@ -1,27 +1,27 @@
-<!-- res/layout/activity_main.xml -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:padding="16dp">
 
-    <!-- Line Chart -->
     <com.github.mikephil.charting.charts.LineChart
         android:id="@+id/lineChart"
         android:layout_width="match_parent"
         android:layout_height="400dp"
         android:layout_marginTop="20dp" />
 
-    <!-- Percentage Change Text -->
     <TextView
         android:id="@+id/percentageChangeText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
+        android:layout_gravity="center"
+        android:padding="8dp"
         android:textColor="@android:color/black"
-        android:textSize="16sp" />
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:gravity="center"/>
 
-    <!-- Time Range Buttons -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -31,35 +31,46 @@
 
         <Button
             android:id="@+id/btn_1M"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="1M" />
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:layout_margin="8dp"
+            android:background="@drawable/bg_circle_button"
+            android:text="1M"
+            android:textColor="@android:color/white"
+            android:gravity="center"/>
 
         <Button
             android:id="@+id/btn_1Y"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="1Y" />
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:layout_margin="8dp"
+            android:background="@drawable/bg_circle_button"
+            android:text="1Y"
+            android:textColor="@android:color/white"
+            android:gravity="center"/>
 
         <Button
             android:id="@+id/btn_5Y"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="5Y" />
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:layout_margin="8dp"
+            android:background="@drawable/bg_circle_button"
+            android:text="5Y"
+            android:textColor="@android:color/white"
+            android:gravity="center"/>
 
         <Button
             android:id="@+id/btn_all"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="ALL" />
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:layout_margin="8dp"
+            android:background="@drawable/bg_circle_button"
+            android:text="ALL"
+            android:textColor="@android:color/white"
+            android:gravity="center"/>
 
     </LinearLayout>
 
-    <!-- Navigation Buttons -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -71,21 +82,17 @@
             android:id="@+id/btn_main_screen"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Back" />
-
-    </LinearLayout>
-
-    <LinearLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
+            android:layout_marginRight="16dp"
+            android:text="Back"
+            android:background="@drawable/bg_rounded_green_button"/>
 
         <Button
             android:id="@+id/btn_toggle_fav"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Favourite" />
+            android:layout_marginLeft="16dp"
+            android:text="Favourite"
+            android:background="@drawable/bg_rounded_green_button"/>
 
     </LinearLayout>
 

@@ -45,11 +45,6 @@ fun TitleSection() {
                 .clickable {}
                 .padding(6.dp)
         ) {
-            Icon(
-                imageVector = Icons.Rounded.Search,
-                contentDescription = "Search",
-                tint = MaterialTheme.colorScheme.onSecondaryContainer
-            )
         }
     }
 }
