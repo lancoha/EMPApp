@@ -152,7 +152,7 @@ fun FavouritesScreen(navController: NavController, assetViewModel: AssetViewMode
                             name = coin.name,
                             symbol = coin.symbol.replace("/USD", ""),
                             backgroundColor = MaterialTheme.colorScheme.primaryContainer,
-                            price = null,
+                            price = 4f,
                         ) {
                             scope.launch { assetViewModel.addRecent(coin.symbol) }
                             MainActivity.GlobalVariables.ChartSymbol = "${coin.symbol}/USD"
@@ -174,7 +174,7 @@ fun FavouritesScreen(navController: NavController, assetViewModel: AssetViewMode
                             name = stock.name,
                             symbol = stock.symbol,
                             backgroundColor = Color(0xFFB0FFB0),
-                            price = null,
+                            price = 4f,
                         ) {
                             scope.launch { assetViewModel.addRecent(stock.symbol) }
                             MainActivity.GlobalVariables.ChartSymbol = stock.symbol
