@@ -6,6 +6,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.CandlestickChart
 import androidx.compose.material.icons.rounded.Explore
 import androidx.compose.material.icons.rounded.Home
+import androidx.compose.material.icons.rounded.Star
 import androidx.compose.material.icons.rounded.Widgets
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -37,8 +38,15 @@ val items = listOf(
         title = "Explore",
         icon = Icons.Rounded.Explore,
         route = "explore"
+    ),
+
+    BottomNavigation(
+        title = "Favourites",
+        icon = Icons.Rounded.Star,
+        route = "favourites"
     )
 )
+
 
 @Composable
 fun BottomNavigationBar(navController: NavController) {

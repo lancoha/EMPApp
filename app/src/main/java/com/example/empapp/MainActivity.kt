@@ -2,6 +2,7 @@ package com.example.empapp
 
 import AllCoinsScreen
 import AllStocksScreen
+import FavouritesScreen
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -105,6 +106,10 @@ fun HomeScreen(name: String, modifier: Modifier = Modifier) {
 
             composable("allStocksScreen") {
                 AllStocksScreen(navController = navController)
+            }
+
+            composable("favourites") {
+                FavouritesScreen(navController = navController)
             }
         }
     }

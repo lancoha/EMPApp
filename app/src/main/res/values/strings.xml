@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">EMPApp</string>
+    <string name="app_name">Market Radar</string>
 
     <string-array name="timeframes_array">
         <item>1M</item>
