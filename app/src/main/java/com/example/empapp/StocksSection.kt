@@ -1,25 +1,31 @@
-// StocksSection.kt
 package com.example.empapp
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.CandlestickChart
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.example.empapp.Data.Stock
 import com.example.empapp.ui.theme.BlueStart
 import com.example.empapp.ui.theme.GreenStart
@@ -28,11 +34,9 @@ import com.example.empapp.ui.theme.PurpleStart
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.jsoup.Jsoup
-import android.util.Log
-import androidx.navigation.NavController
-import kotlinx.coroutines.launch
 
 val stockList = listOf(
     Stock(
@@ -69,7 +73,7 @@ fun StocksSection(navController: NavController, assetViewModel: AssetViewModel) 
                 val url = "https://finance.yahoo.com/quote/${stockSymbol}"
                 val doc = Jsoup.connect(url).get()
                 val priceText = doc.select("fin-streamer[data-field=regularMarketPrice]").first()?.text()
-                priceText?.replace(",", "")?.toFloatOrNull() // Remove commas for numbers like "34,000"
+                priceText?.replace(",", "")?.toFloatOrNull()
             } catch (e: Exception) {
                 Log.e("StocksSection", "Error fetching current price for $stockSymbol", e)
                 null

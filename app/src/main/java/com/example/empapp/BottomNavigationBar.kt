@@ -7,7 +7,6 @@ import androidx.compose.material.icons.rounded.CandlestickChart
 import androidx.compose.material.icons.rounded.Explore
 import androidx.compose.material.icons.rounded.Home
 import androidx.compose.material.icons.rounded.Star
-import androidx.compose.material.icons.rounded.Widgets
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
