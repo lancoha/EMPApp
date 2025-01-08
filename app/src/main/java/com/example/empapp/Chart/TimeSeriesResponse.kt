@@ -1,3 +1,5 @@
+package com.example.empapp.Chart
+
 import com.google.gson.annotations.SerializedName
 
 data class TimeSeriesResponse(

@@ -1,4 +1,4 @@
-package com.example.empapp
+package com.example.empapp.Database
 
 import androidx.room.Database
 import androidx.room.RoomDatabase

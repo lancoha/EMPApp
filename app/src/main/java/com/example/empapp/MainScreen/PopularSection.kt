@@ -1,4 +1,4 @@
-package com.example.empapp
+package com.example.empapp.MainScreen
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -15,6 +15,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.empapp.Database.AssetViewModel
+import com.example.empapp.Database.Popular
+import com.example.empapp.MainActivity
 import kotlinx.coroutines.launch
 
 @Composable

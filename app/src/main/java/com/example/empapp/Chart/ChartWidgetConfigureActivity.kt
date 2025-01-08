@@ -1,6 +1,5 @@
-package com.example.empapp
+package com.example.empapp.Chart
 
-import TwelveDataApi
 import android.app.Activity
 import android.appwidget.AppWidgetManager
 import android.content.Context
@@ -10,6 +9,7 @@ import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Spinner
+import com.example.empapp.R
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
@@ -64,7 +64,14 @@ class ChartWidgetConfigureActivity : Activity() {
             saveTimeframePref(this, appWidgetId, selectedTimeframe)
 
             val appWidgetManager = AppWidgetManager.getInstance(this)
-            ChartWidgetProvider.updateAppWidget(this, appWidgetManager, appWidgetId, symbol, selectedTimeframe, dataFetcher)
+            ChartWidgetProvider.updateAppWidget(
+                this,
+                appWidgetManager,
+                appWidgetId,
+                symbol,
+                selectedTimeframe,
+                dataFetcher
+            )
 
             val resultValue = Intent()
             resultValue.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)

@@ -1,4 +1,4 @@
-package com.example.empapp
+package com.example.empapp.MainScreen
 
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.compose.foundation.background
