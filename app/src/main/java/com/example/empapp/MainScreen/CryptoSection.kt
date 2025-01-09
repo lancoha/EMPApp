@@ -1,4 +1,4 @@
-package com.example.empapp
+package com.example.empapp.MainScreen
 
 import android.util.Log
 import androidx.compose.foundation.background
@@ -28,6 +28,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.empapp.Data.Crypto
+import com.example.empapp.Database.AssetViewModel
+import com.example.empapp.MainActivity
 import com.example.empapp.ui.theme.BlueStart
 import com.example.empapp.ui.theme.GreenStart
 import com.example.empapp.ui.theme.OrangeStart

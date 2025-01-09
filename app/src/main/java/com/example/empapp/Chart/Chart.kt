@@ -1,4 +1,4 @@
-package com.example.empapp
+package com.example.empapp.Chart
 
 import android.graphics.Color
 import android.util.Log
@@ -15,6 +15,8 @@ import java.util.Locale
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.view.View
+import com.example.empapp.MainActivity
+import com.example.empapp.R
 
 class Chart(private val lineChart: LineChart, private val percentageChangeText: TextView) {
 

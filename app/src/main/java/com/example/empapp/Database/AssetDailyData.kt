@@ -1,4 +1,4 @@
-package com.example.empapp
+package com.example.empapp.Database
 
 import androidx.room.Entity
 import androidx.room.ForeignKey

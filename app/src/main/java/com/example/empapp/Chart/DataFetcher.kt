@@ -1,7 +1,5 @@
-package com.example.empapp
+package com.example.empapp.Chart
 
-import TwelveDataApi
-import TimeSeriesResponse
 import android.util.Log
 import com.github.mikephil.charting.data.Entry
 import kotlinx.coroutines.Dispatchers

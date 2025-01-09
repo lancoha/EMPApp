@@ -1,6 +1,5 @@
-package com.example.empapp
+package com.example.empapp.Chart
 
-import TwelveDataApi
 import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
@@ -12,6 +11,9 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.widget.RemoteViews
 import androidx.work.*
+import com.example.empapp.Database.AssetDailyData
+import com.example.empapp.Database.AssetRepository
+import com.example.empapp.R
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.data.Entry
 import kotlinx.coroutines.CoroutineScope
@@ -288,7 +290,14 @@ class WidgetUpdateWorker(context: Context, workerParams: WorkerParameters) : Wor
         for (appWidgetId in appWidgetIds) {
             val stockSymbol = ChartWidgetProvider.loadSymbolPref(applicationContext, appWidgetId) ?: ""
             val timeframe = ChartWidgetConfigureActivity.loadTimeframePref(applicationContext, appWidgetId) ?: "ALL"
-            ChartWidgetProvider.updateAppWidget(applicationContext, appWidgetManager, appWidgetId, stockSymbol, timeframe, dataFetcher)
+            ChartWidgetProvider.updateAppWidget(
+                applicationContext,
+                appWidgetManager,
+                appWidgetId,
+                stockSymbol,
+                timeframe,
+                dataFetcher
+            )
         }
 
         return Result.success()

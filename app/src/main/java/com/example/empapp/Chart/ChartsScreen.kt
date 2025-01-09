@@ -1,6 +1,5 @@
-package com.example.empapp
+package com.example.empapp.Chart
 
-import TwelveDataApi
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
@@ -10,6 +9,11 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import com.example.empapp.Database.AssetDailyData
+import com.example.empapp.Database.AssetRepository
+import com.example.empapp.Database.AssetViewModel
+import com.example.empapp.MainActivity
+import com.example.empapp.R
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.data.Entry
 import kotlinx.coroutines.Dispatchers

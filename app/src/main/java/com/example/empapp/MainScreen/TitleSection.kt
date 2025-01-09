@@ -1,4 +1,4 @@
-package com.example.empapp
+package com.example.empapp.MainScreen
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable

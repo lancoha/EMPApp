@@ -1,7 +1,8 @@
-package com.example.empapp
+package com.example.empapp.Chart
 
 import android.content.Context
 import android.widget.TextView
+import com.example.empapp.R
 import com.github.mikephil.charting.components.MarkerView
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.highlight.Highlight

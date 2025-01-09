@@ -28,6 +28,14 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.empapp.Chart.ChartsScreen
+import com.example.empapp.Database.AssetRepository
+import com.example.empapp.Database.AssetViewModel
+import com.example.empapp.MainScreen.CryptoSection
+import com.example.empapp.MainScreen.LearnSection
+import com.example.empapp.MainScreen.PopularSection
+import com.example.empapp.MainScreen.StocksSection
+import com.example.empapp.MainScreen.TitleSection
 import com.example.empapp.ui.theme.EMPAppTheme
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 
