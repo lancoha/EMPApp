@@ -45,6 +45,7 @@ class Chart(private val lineChart: LineChart, private val percentageChangeText: 
         lineChart.fitScreen()
         lineChart.moveViewToX(0f)
         lineChart.highlightValues(null)
+        lineChart.description.isEnabled = false
     }
 
     fun updateChartWithTimeFrameWidget(data: List<Pair<String, Entry>>, timeFrame: String) {
@@ -106,9 +107,9 @@ class Chart(private val lineChart: LineChart, private val percentageChangeText: 
         val percentageChange = calculatePercentageChange(firstValue, lastValue)
 
         percentageChangeText.text = "Price: $$currentPrice\nChange: $percentageChange%\n\n" +
-                "1 mesec: $change1MDays%\n" +
-                "7 dni: $change7Days%\n" +
-                "1 dan: $change1Day%"
+                "1 month: $change1MDays%\n" +
+                "7 days: $change7Days%\n" +
+                "1 day: $change1Day%"
     }
 
     private fun calculatePercentageChange(firstValue: Float, lastValue: Float): String {

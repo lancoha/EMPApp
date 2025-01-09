@@ -92,6 +92,7 @@ class ChartsScreen : AppCompatActivity() {
             lineChart.invalidate()
             chart.setUpLineChartData(fullData)
             lineChart.invalidate()
+            lineChart.description.isEnabled = false
 
             processAssetBeforeSave(stock, fullData)
             setupChartButtons(fullData)
@@ -189,6 +190,7 @@ class ChartsScreen : AppCompatActivity() {
                     lineChart.invalidate()
                     chart.setUpLineChartData(entries)
                     lineChart.invalidate()
+                    lineChart.description.isEnabled = false
                     setupChartButtons(entries)
 
                     val existingAsset = repo.getAllAssets().first().find { it.id == stock }
